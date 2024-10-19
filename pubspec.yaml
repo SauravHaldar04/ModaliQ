@@ -53,6 +53,7 @@ dependencies:
   dash_chat_2: ^0.0.21
   syncfusion_flutter_charts: ^27.1.53
   flutter_flip_card: ^0.0.6
+  fl_chart: ^0.69.0
 
 dev_dependencies:
   flutter_test:
