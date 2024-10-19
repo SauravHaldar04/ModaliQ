@@ -10,16 +10,26 @@ import 'package:uuid/uuid.dart';
 
 class AIQuizInputPage extends StatefulWidget {
   String quizId;
-  AIQuizInputPage({super.key, required this.quizId});
+  String grade;
+  String subject;
+  String topic;
+
+  AIQuizInputPage({
+    super.key,
+    required this.quizId,
+    required this.grade,
+    required this.subject,
+    required this.topic,
+  });
+
   @override
   State<AIQuizInputPage> createState() => _AIQuizInputPageState();
 }
 
 class _AIQuizInputPageState extends State<AIQuizInputPage> {
   List<Map<String, dynamic>> topics = [];
-  String selectedDifficulty = 'easy';
-  int enteredTopicID = 0;
   DatabaseService databaseService = DatabaseService();
+
   @override
   Widget build(BuildContext context) {
     uploadQuizData(String question, String option1, String option2,
@@ -45,8 +55,6 @@ class _AIQuizInputPageState extends State<AIQuizInputPage> {
       });
     }
 
-    //The Single child scroll view returns blank
-
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -67,130 +75,40 @@ class _AIQuizInputPageState extends State<AIQuizInputPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // BlueButton(
-                //     onTap: () async {
-                //       final response = await http
-                //           .get(Uri.parse('${GlobalVariables.Url}/categories'));
-                //       if (response.statusCode == 200) {
-                //         final decodedResponse = json.decode(response.body);
-                //         setState(() {
-                //           topics =
-                //               List<Map<String, dynamic>>.from(decodedResponse);
-                //         });
-                //       } else {
-                //         print("Error");
-                //       }
-                //     },
-                //     text: 'Generate topics'),
-                // SizedBox(height: 16.0),
-                // Expanded(
-                //   child: SingleChildScrollView(
-                //     child: DataTable(
-                //       columns: [
-                //         DataColumn(
-                //           label: Text(
-                //             'ID',
-                //             style: TextStyle(
-                //                 fontWeight: FontWeight.bold,
-                //                 color: Colors.black),
-                //           ),
-                //         ),
-                //         DataColumn(
-                //           label: Text(
-                //             'Name',
-                //             style: TextStyle(
-                //                 fontWeight: FontWeight.bold,
-                //                 color: Colors.black),
-                //           ),
-                //         ),
-                //       ],
-                //       rows: topics.map((topic) {
-                //         return DataRow(
-                //           cells: [
-                //             DataCell(
-                //               Text(
-                //                 '${topic['id']}',
-                //                 style: TextStyle(
-                //                     fontWeight: FontWeight.bold,
-                //                     color: Colors.black),
-                //               ),
-                //             ),
-                //             DataCell(
-                //               Text(
-                //                 topic['name'],
-                //                 style: TextStyle(
-                //                     fontWeight: FontWeight.bold,
-                //                     color: Colors.black),
-                //               ),
-                //             ),
-                //           ],
-                //         );
-                //       }).toList(),
-                //     ),
-                //   ),
-                // ),
-                const SizedBox(height: 16.0),
-                DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(
-                    labelText: 'Difficulty',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: const [
-                    DropdownMenuItem(
-                      value: 'easy',
-                      child: Text('Easy'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'medium',
-                      child: Text('Medium'),
-                    ),
-                    DropdownMenuItem(
-                      value: 'hard',
-                      child: Text('Hard'),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      selectedDifficulty = value!;
-                    });
-                  },
-                ),
                 const SizedBox(height: 16.0),
                 BlueButton(
-                    onTap: () async {
-                      final response = await http.post(
-                        Uri.parse('${GlobalVariables.Url}/quiz'),
-                        body: json.encode(<String, dynamic>{
-                          'difficulty': selectedDifficulty,
-                          'topic_id': 17
-                        }),
-                        headers: <String, String>{
-                          'Content-Type': 'application/json'
-                        },
+                  onTap: () async {
+                    final response = await http.post(
+                      Uri.parse('${GlobalVariables.Url}/quiz'),
+                      body: json.encode(<String, dynamic>{
+                        'grade': widget.grade,
+                        'subject': widget.subject,
+                        'topic': widget.topic,
+                      }),
+                      headers: <String, String>{
+                        'Content-Type': 'application/json'
+                      },
+                    );
+                    if (response.statusCode == 200) {
+                      print(jsonDecode(response.body));
+                      // Process the received data
+                      uploadQuizData(
+                        jsonDecode(response.body)[0]['question'],
+                        jsonDecode(response.body)[0]['correct_answer'],
+                        jsonDecode(response.body)[0]["incorrect_answers"][0],
+                        jsonDecode(response.body)[0]["incorrect_answers"][1],
+                        jsonDecode(response.body)[0]["incorrect_answers"][2],
                       );
-                      if (response.statusCode == 200) {
-                        print(jsonDecode(response.body));
-                        for (int i = 0; i < 5; i++) {
-                          uploadQuizData(
-                            jsonDecode(response.body)[i]['question'],
-                            jsonDecode(response.body)[i]['correct_answer'],
-                            jsonDecode(response.body)[i]["incorrect_answers"]
-                                [0],
-                            jsonDecode(response.body)[i]["incorrect_answers"]
-                                [1],
-                            jsonDecode(response.body)[i]["incorrect_answers"]
-                                [2],
-                          );
-                        }
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => AIQuizPlay()),
-                        );
-                      } else {
-                        print("Error");
-                      }
-                    },
-                    text: 'Generate Quiz')
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => AIQuizPlay()),
+                      );
+                    } else {
+                      print("Error");
+                    }
+                  },
+                  text: 'Generate Quiz',
+                )
               ],
             ),
           ),

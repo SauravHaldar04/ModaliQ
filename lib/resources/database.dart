@@ -4,6 +4,8 @@ import 'package:firebase_core/firebase_core.dart';
 
 class DatabaseService {
   final String uid;
+  final auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
 
   DatabaseService({this.uid = ''});
 
@@ -16,40 +18,22 @@ class DatabaseService {
     });
   }
 
-  getData() async {
-    return await FirebaseFirestore.instance.collection("users").snapshots();
-  }
+  Future<void> addQuizData(Map<String, String> quizData, String quizId) async {
+    try {
+      if (uid.isEmpty) {
+        print('Error: UID is null or empty.');
+        return;
+      }
 
-  Future<void> addQuizData(
-    Map<String, dynamic> quizData,
-    String quizId,
-    String year,
-  ) async {
-    User teacher = FirebaseAuth.instance.currentUser!;
-    await FirebaseFirestore.instance
-        .collection("Quiz")
-        .doc(quizId)
-        .set(quizData)
-        .catchError((e) {
-      print(e);
-    });
-    await FirebaseFirestore.instance
-        .collection('students')
-        .where('year', isEqualTo: year)
-        .get()
-        .then((querySnapshot) {
-      querySnapshot.docs.forEach((doc) {
-        doc.reference.update({
-          'quizID': FieldValue.arrayUnion([quizId])
-        });
-      });
-    });
-    await FirebaseFirestore.instance
-        .collection('teachers')
-        .doc(teacher.uid)
-        .update({
-      'quizID': FieldValue.arrayUnion([quizId])
-    });
+      DocumentReference userDocRef = _firestore.collection('users').doc(uid);
+      CollectionReference quizCollectionRef = userDocRef.collection('Quiz');
+
+      await quizCollectionRef.doc(quizId).set(quizData);
+      print('Quiz data added successfully');
+    } catch (e) {
+      print('Error adding quiz data: $e');
+      throw e;
+    }
   }
 
   Future<void> addQuestionData(quizData, String quizId) async {

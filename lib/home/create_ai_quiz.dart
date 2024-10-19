@@ -1,9 +1,8 @@
-import 'package:datahack/global/global_var.dart';
 import 'package:datahack/home/ai_generated_quiz_input.dart';
 import 'package:datahack/resources/database.dart';
-import 'package:datahack/widgets/blue_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:uuid/uuid.dart';
 
 class CreateAIQuiz extends StatefulWidget {
@@ -12,15 +11,32 @@ class CreateAIQuiz extends StatefulWidget {
 }
 
 class _CreateAIQuizState extends State<CreateAIQuiz> {
-  DatabaseService databaseService = new DatabaseService();
+  final FirebaseAuth auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
-
-  String? quizImgUrl, quizTitle, quizDesc, id;
-
+  String? grade;
+  String? subject;
+  String? topic;
+  late DatabaseService databaseService;
   bool isLoading = false;
   String? quizId;
-  String selectedValue = 'FE';
-  createQuiz(String year) {
+
+  @override
+  void initState() {
+    super.initState();
+    databaseService = DatabaseService(uid: auth.currentUser!.uid);
+  }
+
+  // List of options
+  List<String> grades = ['11th', '12th'];
+  List<String> subjects = [
+    'Maths',
+    'Physics',
+    'Chemistry',
+    'Biology',
+    'English'
+  ];
+
+  createQuiz() {
     quizId = Uuid().v1();
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -28,152 +44,210 @@ class _CreateAIQuizState extends State<CreateAIQuiz> {
       });
 
       Map<String, String> quizData = {
-        "quizImgUrl": quizImgUrl!,
-        "quizTitle": quizTitle!,
-        "quizDesc": quizDesc!,
+        "grade": grade!,
+        "subject": subject!,
+        "topic": topic!,
         "id": quizId!,
       };
 
-      databaseService
-          .addQuizData(
-        quizData,
-        quizId!,
-        year,
-      )
-          .then((value) {
+      databaseService.addQuizData(quizData, quizId!).then((value) {
         setState(() {
           isLoading = false;
         });
         Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-                builder: (context) => AIQuizInputPage(
-                      quizId: quizId!,
-                    )));
+          context,
+          MaterialPageRoute(
+              builder: (context) => AIQuizInputPage(
+                  quizId: quizId!,
+                  grade: grade!,
+                  subject: subject!,
+                  topic: topic!)),
+        );
+      }).catchError((error) {
+        print('Error in createQuiz: $error');
+        setState(() {
+          isLoading = false;
+        });
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Teacher _teacher =
-    //     Provider.of<TeacherProvider>(context).getUser();
-
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text(
-          'Enter Quiz Details',
-          style: TextStyle(
-              color: Colors.white, fontSize: 23, fontWeight: FontWeight.bold),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF6448FE), Color(0xFF5FC6FF)],
+          ),
         ),
-        flexibleSpace: Container(
-          decoration:
-              const BoxDecoration(gradient: GlobalVariables.primaryGradient),
-        ),
-      ),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Form(
-              key: _formKey,
-              child: Container(
-                padding:
-                    EdgeInsets.symmetric(vertical: 16), // Add vertical spacing
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start, // Align fields to the left
-                  children: [
-                    TextFormField(
-                      validator: (val) =>
-                          val!.isEmpty ? "Enter Quiz Image Url" : null,
-                      decoration: InputDecoration(
-                          hintText: "Quiz Image Url (Optional)"),
-                      onChanged: (val) {
-                        quizImgUrl = val;
-                      },
+        child: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Create AI Quiz',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                    SizedBox(
-                      height: 16, // Add vertical spacing
-                    ),
-                    TextFormField(
-                      validator: (val) =>
-                          val!.isEmpty ? "Enter Quiz Title" : null,
-                      decoration: InputDecoration(hintText: "Quiz Title"),
-                      onChanged: (val) {
-                        quizTitle = val;
-                      },
-                    ),
-                    SizedBox(
-                      height: 16, // Add vertical spacing
-                    ),
-                    TextFormField(
-                      validator: (val) =>
-                          val!.isEmpty ? "Enter Quiz Description" : null,
-                      decoration: InputDecoration(hintText: "Quiz Description"),
-                      onChanged: (val) {
-                        quizDesc = val;
-                      },
-                    ),
-                    SizedBox(
-                      height: 16, // Add vertical spacing
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const Text('Select a year'),
-            Container(
-              height: 70,
-              width: 80,
-              child: DropdownButton<String>(
-                key: UniqueKey(),
-                elevation: 6,
-                value: selectedValue,
-                items: const <DropdownMenuItem<String>>[
-                  DropdownMenuItem(
-                    value: 'FE',
-                    child: Text("FE"),
                   ),
-                  DropdownMenuItem(
-                    value: "SE",
-                    child: Text("SE"),
+                  SizedBox(height: 10),
+                  Text(
+                    'Generate a personalized quiz with AI',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white70,
+                    ),
                   ),
-                  DropdownMenuItem(
-                    value: "TE",
-                    child: Text("TE"),
-                  ),
-                  DropdownMenuItem(
-                    value: "BE",
-                    child: Text("BE"),
+                  SizedBox(height: 40),
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              'Student Grade',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white70,
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Container(
+                              width: 93,
+                              child: _buildDropdown(
+                                'Grade',
+                                grade,
+                                grades,
+                                (String? newValue) {
+                                  setState(() {
+                                    grade = newValue;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Text(
+                              'Subject',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white70,
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
+                                child: _buildDropdown(
+                              'Subject',
+                              subject,
+                              subjects,
+                              (String? newValue) {
+                                setState(() {
+                                  subject = newValue;
+                                });
+                              },
+                            )),
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        _buildTextField('Topic'),
+                        SizedBox(height: 40),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              createQuiz();
+                            }
+                          },
+                          child: Text('Generate Quiz'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: Color(0xFF6448FE),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 50, vertical: 15),
+                            textStyle: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedValue = newValue!;
-                    // Perform actions based on the selected value
-                  });
-                },
               ),
             ),
-            SizedBox(
-              height: 16, // Add vertical spacing
-            ),
-            Spacer(),
-            BlueButton(
-              onTap: () {
-                createQuiz(selectedValue);
-              },
-              text: "Generate Quiz",
-            ),
-            SizedBox(
-              height: 60,
-            ),
-          ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildDropdown(String label, String? value, List<String> items,
+      Function(String?) onChanged) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: value,
+          items: items.map((item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(item),
+            );
+          }).toList(),
+          onChanged: onChanged,
+          dropdownColor: Colors.white.withOpacity(0.2),
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.white,
+          ),
+          icon: SvgPicture.asset('assets/icons/arrow_down.svg', width: 20),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(String label) {
+    return TextFormField(
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(
+          fontSize: 16,
+          color: Colors.white70,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.white70),
+          borderRadius: BorderRadius.circular(15),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+          borderRadius: BorderRadius.circular(15),
+        ),
+      ),
+      validator: (val) => val!.isEmpty ? 'Enter $label' : null,
+      onChanged: (val) {
+        setState(() {
+          topic = val;
+        });
+      },
     );
   }
 }
