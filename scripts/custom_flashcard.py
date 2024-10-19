@@ -118,7 +118,7 @@ class CustomFlashcardGenerator:
         self.get_text(file_path, file_type)
 
         # Replace with your actual Cohere API key here
-        api_key = "RxSPixDw28aNcvuOvUJivFUiepCOiByY4eBmrY2p"
+        api_key = ""
         
         # Generate flashcards based on extracted keywords from given text content
         flashcard_output = self.give_custom_flashcard(api_key=api_key, grade=grade)

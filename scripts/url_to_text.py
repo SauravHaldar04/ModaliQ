@@ -6,7 +6,7 @@ from googleapiclient.discovery import build
 from youtube_transcript_api import YouTubeTranscriptApi
 
 # Replace with your own API key
-YOUTUBE_API_KEY = "AIzaSyBkyTVGU3hKEYCgaY4HfU6Qq161b8Q_yr4 "
+YOUTUBE_API_KEY = ""
 
 def get_youtube_transcript(url):
     try:
