@@ -77,14 +77,11 @@ class CustomFlashcardGenerator:
     def get_keywords(self):
         self.keywords = preprocessing.extract_keywords(self.text)
     
-    def get_images_video(self,structured_output):
+    def get_images(self,structured_output):
         for item in structured_output:
             query=item['question']
             image=get_media.get_image(query)
-            video=get_media.get_video_link(query)
             item.update({'image':image})
-            # item.update({'video':video})
-            
         
         return structured_output
 
@@ -184,5 +181,4 @@ flashcard_text = generator.give_flashcards(file, 'text','11')
 # # # Print out structured flashcard output
 print("Generated Flashcards:")
 for flashcard in flashcard_text:
-    # print(f"Q: {flashcard['question']}\nA: {flashcard['answer']}\n")
-    print(flashcard)
+    print(f"Q: {flashcard['question']}\nA: {flashcard['answer']}\n")
