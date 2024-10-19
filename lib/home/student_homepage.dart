@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:datahack/core/theme/app_pallete.dart';
 import 'package:datahack/core/utils/pickFile.dart';
 import 'package:datahack/features/auth/presentation/pages/landing_page.dart';
+import 'package:datahack/flashcards/flashcard_list.dart';
 import 'package:datahack/widgets/clock_card.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -638,34 +639,44 @@ class _StudentHomePageState extends State<StudentHomePage> {
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
-          _buildFlashcardItem('Math Flashcards', '20 cards'),
-          _buildFlashcardItem('Science Flashcards', '15 cards'),
-          _buildFlashcardItem('History Flashcards', '10 cards'),
+          _buildFlashcardItem('Math Flashcards', '20 cards', 'Math'),
+          _buildFlashcardItem('Science Flashcards', '15 cards', 'Science'),
+          _buildFlashcardItem('History Flashcards', '10 cards', 'History'),
         ],
       ),
     );
   }
 
-  Widget _buildFlashcardItem(String title, String subtitle) {
-    return Container(
-      width: 180,
-      margin: EdgeInsets.only(right: 16),
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.lightBlueAccent.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.lightBlueAccent, width: 2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          SizedBox(height: 5),
-          Text(subtitle, style: TextStyle(fontSize: 14, color: Colors.grey)),
-          Spacer(),
-          Icon(Icons.flash_on, color: Colors.lightBlueAccent, size: 40),
-        ],
+  Widget _buildFlashcardItem(String title, String subtitle, String subject) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => PlayfulFlashcardPage(
+                      subject: subject,
+                    )));
+      },
+      child: Container(
+        width: 180,
+        margin: EdgeInsets.only(right: 16),
+        padding: EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.lightBlueAccent.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(color: Colors.lightBlueAccent, width: 2),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            SizedBox(height: 5),
+            Text(subtitle, style: TextStyle(fontSize: 14, color: Colors.grey)),
+            Spacer(),
+            Icon(Icons.flash_on, color: Colors.lightBlueAccent, size: 40),
+          ],
+        ),
       ),
     );
   }

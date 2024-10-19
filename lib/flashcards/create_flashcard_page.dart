@@ -5,6 +5,7 @@ import 'package:datahack/core/utils/view_pdf.dart';
 import 'package:datahack/core/widgets/project_button.dart';
 import 'package:datahack/core/widgets/project_textfield.dart';
 import 'package:datahack/flashcards/view_flashcards_page.dart';
+import 'package:datahack/flashcards/view_quiz_flashcard_page.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -111,6 +112,17 @@ class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
                             'This is the note on the back of the flashcard.',
                       ),
                     ),
+                  ),
+                  SizedBox(height: 20),
+                  Center(
+                    child: QuizFlashcard(
+                        question: 'What is the color of sky ?',
+                        option1: "Red",
+                        option2: "Green",
+                        option3: "Yellow",
+                        correctOption: "Blue",
+                        explanation:
+                            "Sky is blue because of Rayleigh scattering."),
                   ),
                   SizedBox(height: 20),
                 ],
@@ -287,66 +299,64 @@ class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
     );
   }
 
-Widget buildAudioInputSection() {
-  return buildFileUploadSection(
-    'Audio Input Section',
-    isFileUploaded ? 'Stop Recording' : 'Start Recording',
-    () async {
-      if (!isFileUploaded) {
-        // Start recording
-        await _audioRecorder.startRecorder(toFile: 'audio.aac');
-        setState(() {
-          isFileUploaded = true;
-        });
-      } else {
-        // Stop recording
-        await _audioRecorder.stopRecorder();
-        setState(() {
-          isFileUploaded = false;
-        });
-      }
-    },
-  );
-}
-
-FlutterSoundPlayer _audioPlayer = FlutterSoundPlayer();
-
-Widget buildAudioPlaybackButton() {
-  return ElevatedButton(
-    onPressed: () async {
-      if (_audioPlayer.isPlaying) {
-        await _audioPlayer.stopPlayer();
-      } else {
-        await _audioPlayer.startPlayer(fromURI: 'audio.aac');
-      }
-      setState(() {}); // Update UI based on player state
-    },
-    child: Text(_audioPlayer.isPlaying ? 'Stop Audio' : 'Play Audio'),
-  );
-}
-
-Widget buildPptInputSection() {
-  return buildFileUploadSection(
-    'PPT Input Section',
-    'Upload PPT',
-    () async {
-      if (!isFileUploaded) {
-        final pickedFile = await pickFile(
-          type: FileType.custom,
-          allowedExtensions: ['ppt', 'pptx'],
-        );
-        if (pickedFile != null) {
-          // Handle the picked PPT file here (e.g., display filename)
+  Widget buildAudioInputSection() {
+    return buildFileUploadSection(
+      'Audio Input Section',
+      isFileUploaded ? 'Stop Recording' : 'Start Recording',
+      () async {
+        if (!isFileUploaded) {
+          // Start recording
+          await _audioRecorder.startRecorder(toFile: 'audio.aac');
           setState(() {
             isFileUploaded = true;
           });
+        } else {
+          // Stop recording
+          await _audioRecorder.stopRecorder();
+          setState(() {
+            isFileUploaded = false;
+          });
         }
-      }
-    },
-  );
-}
+      },
+    );
+  }
 
+  FlutterSoundPlayer _audioPlayer = FlutterSoundPlayer();
 
+  Widget buildAudioPlaybackButton() {
+    return ElevatedButton(
+      onPressed: () async {
+        if (_audioPlayer.isPlaying) {
+          await _audioPlayer.stopPlayer();
+        } else {
+          await _audioPlayer.startPlayer(fromURI: 'audio.aac');
+        }
+        setState(() {}); // Update UI based on player state
+      },
+      child: Text(_audioPlayer.isPlaying ? 'Stop Audio' : 'Play Audio'),
+    );
+  }
+
+  Widget buildPptInputSection() {
+    return buildFileUploadSection(
+      'PPT Input Section',
+      'Upload PPT',
+      () async {
+        if (!isFileUploaded) {
+          final pickedFile = await pickFile(
+            type: FileType.custom,
+            allowedExtensions: ['ppt', 'pptx'],
+          );
+          if (pickedFile != null) {
+            // Handle the picked PPT file here (e.g., display filename)
+            setState(() {
+              isFileUploaded = true;
+            });
+          }
+        }
+      },
+    );
+  }
 
   Widget buildTextInputSection() {
     return Container(

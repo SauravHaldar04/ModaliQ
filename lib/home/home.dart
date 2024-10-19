@@ -1,4 +1,5 @@
 import 'package:datahack/flashcards/create_flashcard_page.dart';
+import 'package:datahack/home/contest_page.dart';
 import 'package:datahack/home/create_ai_quiz.dart';
 import 'package:datahack/home/student_homepage.dart';
 import 'package:flutter/material.dart';
@@ -101,11 +102,6 @@ class FlashCardAnalysis extends StatelessWidget {
 class QuizPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Center(child: Text('Quiz Page'));
-}
-
-class ContestPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Center(child: Text('Contest Page'));
 }
 
 class ChatHelp extends StatelessWidget {
