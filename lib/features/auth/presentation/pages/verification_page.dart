@@ -1,6 +1,6 @@
-
 import 'package:datahack/core/theme/app_pallete.dart';
 import 'package:datahack/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:datahack/home/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,7 +18,7 @@ class _VerificationPageState extends State<VerificationPage> {
       listener: (context, state) {
         if (state is AuthEmailVerified) {
           Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => const Scaffold(),
+            builder: (context) => const HomePage(),
           ));
         } else if (state is AuthFailure) {
           ScaffoldMessenger.of(context).showSnackBar(

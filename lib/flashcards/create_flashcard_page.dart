@@ -19,10 +19,14 @@ class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
           style: TextStyle(color: Colors.white),
         ),
       ),
-      body: Column(
-        children: [
-          ProjectTextfield(text: "Enter Topic :", controller: topicController),
-        ],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            ProjectTextfield(
+                text: "Enter Topic :", controller: topicController),
+          ],
+        ),
       ),
     );
   }

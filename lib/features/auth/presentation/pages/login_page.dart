@@ -6,6 +6,7 @@ import 'package:datahack/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:datahack/features/auth/presentation/pages/verification_page.dart';
 import 'package:datahack/features/auth/presentation/widgets/auth_button.dart';
 import 'package:datahack/features/auth/presentation/widgets/auth_textfield.dart';
+import 'package:datahack/home/home.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -95,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
                                     .read<AuthBloc>()
                                     .add(AuthIsUserEmailVerified());
                                 if (state is AuthEmailVerified) {
-                                  return const Scaffold();
+                                  return const HomePage();
                                 }
                                 if (state is AuthEmailVerificationFailedState) {
                                   return const VerificationPage();
