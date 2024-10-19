@@ -54,6 +54,13 @@ dependencies:
   syncfusion_flutter_charts: ^27.1.53
   flutter_flip_card: ^0.0.6
   fl_chart: ^0.69.0
+  url_launcher: ^6.3.1
+  image_picker: ^1.1.2
+  video_player: ^2.9.2
+  flutter_sound: ^9.16.3
+  syncfusion_flutter_pdfviewer: ^27.1.53
+  flutter_quill: ^10.8.4
+  dotted_border: ^2.1.0
 
 
 dev_dependencies:

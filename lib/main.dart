@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
 
-/// The main entry point of the Aparna Education application.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initDependencies();
