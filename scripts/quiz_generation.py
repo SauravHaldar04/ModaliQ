@@ -4,7 +4,7 @@ from langchain.prompts import PromptTemplate
 from langchain.schema.runnable import RunnablePassthrough
 
 # Set up Google API key (replace with your actual key)
-os.environ['GOOGLE_API_KEY'] = ''
+os.environ['GOOGLE_API_KEY'] = 'AIzaSyDN75ihrCa2m0elIiNZZqkhfjDfK7k_7wY'
 
 # Initialize Gemini model
 gemini = ChatGoogleGenerativeAI(model="gemini-pro")
@@ -35,24 +35,33 @@ def generate_multiple_questions(grade, subject, topic, difficulty, count):
         questions.append(question)
     return questions
 
+def generate_question_dictionary(grade, subject, topic, counts):
+    question_dict = {}
+    
+    for difficulty, count in counts.items():
+        questions = generate_multiple_questions(grade, subject, topic, difficulty, count)
+        question_dict[difficulty] = questions
+    
+    return question_dict
+
 # Generate questions
 grade = 8
 subject = "Science"
 topic = "Solar System"
+counts = {
+    "easy": 10,
+    "medium": 10,
+    "hard": 10
+}
 
-easy_questions = generate_multiple_questions(grade, subject, topic, "easy", 10)
-medium_questions = generate_multiple_questions(grade, subject, topic, "medium", 10)
-hard_questions = generate_multiple_questions(grade, subject, topic, "hard", 10)
+question_dictionary = generate_question_dictionary(grade, subject, topic, counts)
 
-# Print the questions
-print("Easy Questions:")
-for i, q in enumerate(easy_questions, 1):
-    print(f"{i}. {q}\n")
+# Print the dictionary (for verification)
+for difficulty, questions in question_dictionary.items():
+    print(f"\n{difficulty.capitalize()} Questions:")
+    for i, q in enumerate(questions, 1):
+        print(f"{i}. {q}\n")
 
-print("\nMedium Questions:")
-for i, q in enumerate(medium_questions, 1):
-    print(f"{i}. {q}\n")
-
-print("\nHard Questions:")
-for i, q in enumerate(hard_questions, 1):
-    print(f"{i}. {q}\n")
+# Return the dictionary
+print("\nReturning the question dictionary:")
+print(question_dictionary)
