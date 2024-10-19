@@ -1,4 +1,3 @@
-
 import 'package:datahack/core/entities/user_entity.dart';
 import 'package:datahack/core/error/failure.dart';
 import 'package:datahack/core/error/server_exception.dart';
@@ -27,14 +26,18 @@ class AuthRepositoryImpl implements AuthRepository {
       required String lastName,
       required String middleName,
       required String email,
-      required String password}) {
+      required String password,
+      required String studentGrade,
+      required List<String> studentSubjects}) {
     return _getUser(() async =>
         await authRemoteDatasources.signUpWithEmailAndPassword(
             firstName: firstName,
             middleName: middleName,
             lastName: lastName,
             email: email,
-            password: password));
+            password: password,
+            studentGrade: studentGrade,
+            studentSubjects: studentSubjects));
   }
 
   Future<Either<Failure, User>> _getUser(Future<User> Function() fn) async {
@@ -112,7 +115,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, void>> updateEmailVerification() async{
+  Future<Either<Failure, void>> updateEmailVerification() async {
     try {
       if (!await checkInternetConnection.isConnected) {
         return Left(Failure('No internet connection'));

@@ -2,7 +2,6 @@
 
 import 'dart:async';
 
-
 import 'package:datahack/core/cubits/auth_user/auth_user_cubit.dart';
 import 'package:datahack/core/entities/user_entity.dart';
 import 'package:datahack/core/usecase/current_user.dart';
@@ -46,10 +45,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required VerifyUserEmail verifyUserEmail,
     required GetFirebaseAuth getFirebaseAuth,
     required Logger logger,
-
-  })  :
-  _updateEmailVerification = updateEmailVerification,
-   _userSignup = userSignup,
+  })  : _updateEmailVerification = updateEmailVerification,
+        _userSignup = userSignup,
         _isUserEmailVerified = isUserEmailVerified,
         _userLogin = userLogin,
         _googleSignIn = googleSignIn,
@@ -86,7 +83,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         email: event.email,
         password: event.password,
         firstName: event.firstName,
-        lastName: event.lastName));
+        lastName: event.lastName,
+        studentGrade: event.studentGrade,
+        studentSubjects: event.studentSubjects));
     result.fold(
       (failure) {
         _logger.e('AuthSignUp failed: ${failure.message}');
@@ -156,7 +155,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         } else {
           emit(AuthUserLoggedIn(user));
         }
-        
       },
     );
   }
@@ -227,7 +225,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             if (user.emailVerified) {
               _logger.i('User email is verified.');
               timer.cancel();
-             await _updateEmailVerification(NoParams());
+              await _updateEmailVerification(NoParams());
               add(AuthEmailVerificationCompleted());
             }
           },

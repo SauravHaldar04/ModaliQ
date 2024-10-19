@@ -1,4 +1,6 @@
 import 'package:datahack/core/theme/app_pallete.dart';
+import 'package:datahack/features/auth/presentation/pages/landing_page.dart';
+import 'package:datahack/widgets/clock_card.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -14,10 +16,163 @@ class StudentHomePage extends StatelessWidget {
         .snapshots();
   }
 
+  Future<void> _logout(BuildContext context) async {
+    try {
+      await _auth.signOut();
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => LandingPage()),
+      );
+    } catch (e) {
+      print("Error logging out: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to log out.')),
+      );
+    }
+  }
+
+  Future<void> _scheduleSession(BuildContext context) async {
+    final TextEditingController _titleController = TextEditingController();
+    DateTime selectedDate = DateTime.now();
+    TimeOfDay selectedTime = TimeOfDay.now();
+
+    // Show a dialog to input session details
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Schedule Study Session'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _titleController,
+                decoration: InputDecoration(labelText: 'Session Title'),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  // Select date
+                  DateTime? date = await showDatePicker(
+                    context: context,
+                    initialDate: selectedDate,
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime.now().add(Duration(days: 30)),
+                  );
+                  if (date != null) {
+                    selectedDate = date;
+                  }
+                },
+                child: Text('Select Date'),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  // Select time
+                  TimeOfDay? time = await showTimePicker(
+                    context: context,
+                    initialTime: selectedTime,
+                  );
+                  if (time != null) {
+                    selectedTime = time;
+                  }
+                },
+                child: Text('Select Time'),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                // Save session to Firestore
+                String title = _titleController.text;
+                DateTime scheduledDateTime = DateTime(
+                  selectedDate.year,
+                  selectedDate.month,
+                  selectedDate.day,
+                  selectedTime.hour,
+                  selectedTime.minute,
+                );
+
+                if (title.isNotEmpty) {
+                  await _firestore
+                      .collection('users')
+                      .doc(_auth.currentUser!.uid)
+                      .collection('sessions')
+                      .add({
+                    'title': title,
+                    'scheduledDateTime': scheduledDateTime,
+                    'createdAt': FieldValue.serverTimestamp(),
+                  });
+
+                  Navigator.pop(context); // Close dialog
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Session scheduled!')),
+                  );
+                }
+              },
+              child: Text('Schedule'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Close dialog
+              },
+              child: Text('Cancel'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> _scheduledSessionsStream() {
+    return _firestore
+        .collection('users')
+        .doc(_auth.currentUser!.uid)
+        .collection('sessions')
+        .orderBy('scheduledDateTime', descending: false)
+        .snapshots();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text('Home'),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Pallete.primaryColor,
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text('Home'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () {
+                _logout(context); // Call the logout method
+              },
+            ),
+          ],
+        ),
+      ),
       body: SafeArea(
         child: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
           stream: _userStream(),
@@ -93,13 +248,6 @@ class StudentHomePage extends StatelessWidget {
                               color: Colors.white,
                               size: 30,
                             ),
-                            // You can replace the icon with initials or a profile image
-                            // Example: Show initials if no image
-                            // backgroundImage: userProfileImage != null ? NetworkImage(userProfileImage) : null,
-                            // child: userProfileImage == null ? Text(
-                            //   firstName[0], // Display first letter of the name
-                            //   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
-                            // ) : null,
                           ),
                         ),
                       ],
@@ -114,7 +262,7 @@ class StudentHomePage extends StatelessWidget {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10),
-                  _buildStreakCard(context, 15),
+                  _buildStreakCard(context, 80),
 
                   SizedBox(height: 20),
 
@@ -134,7 +282,7 @@ class StudentHomePage extends StatelessWidget {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10),
-                  _buildStudySessionCard(),
+                  _buildStudySessionCard(context),
 
                   SizedBox(height: 20),
 
@@ -145,6 +293,45 @@ class StudentHomePage extends StatelessWidget {
                   ),
                   SizedBox(height: 10),
                   _buildPerformanceInsights(),
+
+                  // Upcoming Scheduled Sessions
+                  SizedBox(height: 20),
+                  Text(
+                    'Upcoming Scheduled Sessions',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                    stream: _scheduledSessionsStream(),
+                    builder: (context, sessionSnapshot) {
+                      if (sessionSnapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+
+                      if (!sessionSnapshot.hasData ||
+                          sessionSnapshot.data!.docs.isEmpty) {
+                        return Center(child: Text('No scheduled sessions.'));
+                      }
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: sessionSnapshot.data!.docs.length,
+                        itemBuilder: (context, index) {
+                          final session = sessionSnapshot.data!.docs[index];
+                          final title = session.get('title');
+                          final scheduledDateTime =
+                              (session.get('scheduledDateTime') as Timestamp)
+                                  .toDate();
+
+                          return ClockCard(
+                              title: title,
+                              scheduledDateTime: scheduledDateTime);
+                        },
+                      );
+                    },
+                  ),
                 ],
               ),
             );
@@ -154,7 +341,46 @@ class StudentHomePage extends StatelessWidget {
     );
   }
 
-  // Progress Overview Card
+  // Flashcard Recommendations Card
+  Widget _buildFlashcardRecommendations() {
+    return Container(
+      height: 150,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          _buildFlashcardItem('Math Flashcards', '20 cards'),
+          _buildFlashcardItem('Science Flashcards', '15 cards'),
+          _buildFlashcardItem('History Flashcards', '10 cards'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFlashcardItem(String title, String subtitle) {
+    return Container(
+      width: 180,
+      margin: EdgeInsets.only(right: 16),
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.lightBlueAccent.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(color: Colors.lightBlueAccent, width: 2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          SizedBox(height: 5),
+          Text(subtitle, style: TextStyle(fontSize: 14, color: Colors.grey)),
+          Spacer(),
+          Icon(Icons.flash_on, color: Colors.lightBlueAccent, size: 40),
+        ],
+      ),
+    );
+  }
+
+  // Streak Card
   Widget _buildStreakCard(BuildContext context, int streakDays) {
     return Container(
       padding: EdgeInsets.all(16),
@@ -239,61 +465,37 @@ class StudentHomePage extends StatelessWidget {
     );
   }
 
-  // Flashcard Recommendations Section
-  Widget _buildFlashcardRecommendations() {
+  // Study Session Card
+  Widget _buildStudySessionCard(BuildContext context) {
     return Container(
-      height: 150,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          _buildFlashcardItem('Math Flashcards', '20 cards'),
-          _buildFlashcardItem('Science Flashcards', '15 cards'),
-          _buildFlashcardItem('History Flashcards', '10 cards'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFlashcardItem(String title, String subtitle) {
-    return Container(
-      width: 180,
-      margin: EdgeInsets.only(right: 16),
       padding: EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.lightBlueAccent.withOpacity(0.1),
+        color: Colors.greenAccent.withOpacity(0.1),
         borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.lightBlueAccent, width: 2),
+        border: Border.all(color: Colors.greenAccent, width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-          SizedBox(height: 5),
-          Text(subtitle, style: TextStyle(fontSize: 14, color: Colors.grey)),
-          Spacer(),
-          Icon(Icons.flash_on, color: Colors.lightBlueAccent, size: 40),
-        ],
-      ),
-    );
-  }
-
-  // Study Session Card
-  Widget _buildStudySessionCard() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.orangeAccent.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.orangeAccent, width: 2),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.schedule, color: Colors.orangeAccent, size: 30),
-          SizedBox(width: 10),
           Text(
-            'Next session in 2 hours',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            'Schedule Your Study Session',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.green,
+            ),
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Click to add a session for today!',
+            style: TextStyle(fontSize: 14, color: Colors.black54),
+          ),
+          SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: () {
+              _scheduleSession(context); // Call the schedule session method
+            },
+            child: Text('Schedule Session'),
           ),
         ],
       ),

@@ -20,6 +20,8 @@ abstract interface class AuthRemoteDataSources {
     required String middleName,
     required String email,
     required String password,
+    required String studentGrade,
+    required List<String> studentSubjects,
   });
 
   /// Logs in an existing user using email and password.
@@ -51,10 +53,10 @@ abstract interface class AuthRemoteDataSources {
 class AuthRemoteDataSourcesImpl implements AuthRemoteDataSources {
   @override
   final FirebaseAuth firebaseAuth;
-  
+
   @override
   final FirebaseFirestore firestore;
-  
+
   @override
   final GoogleSignIn googleSignIn;
 
@@ -103,6 +105,8 @@ class AuthRemoteDataSourcesImpl implements AuthRemoteDataSources {
     required String middleName,
     required String email,
     required String password,
+    required String studentGrade,
+    required List<String> studentSubjects,
   }) async {
     try {
       _logger.i('Attempting to sign up user with email: $email');
@@ -122,6 +126,8 @@ class AuthRemoteDataSourcesImpl implements AuthRemoteDataSources {
         firstName: firstName,
         uid: user.uid,
         lastName: lastName,
+        studentGrade: studentGrade,
+        studentSubjects: studentSubjects,
       );
 
       await firestore.collection('users').doc(user.uid).set(newUser.toMap());
@@ -180,10 +186,14 @@ class AuthRemoteDataSourcesImpl implements AuthRemoteDataSources {
         firstName: firstName,
         lastName: lastName,
         middleName: '',
+        studentGrade: '',
+        studentSubjects: [],
       );
 
-      await firestore.collection('users').doc(user.uid).set(userModel.toMap(),
-          SetOptions(merge: true));
+      await firestore
+          .collection('users')
+          .doc(user.uid)
+          .set(userModel.toMap(), SetOptions(merge: true));
       _logger.i('User data updated in Firestore for UID: ${user.uid}');
 
       return userModel;
@@ -211,8 +221,10 @@ class AuthRemoteDataSourcesImpl implements AuthRemoteDataSources {
       _logger.i('Email verification sent to ${user.email}.');
       return true;
     } on FirebaseAuthException catch (e) {
-      _logger.e('FirebaseAuthException during email verification: ${e.message}');
-      throw ServerException(message: e.message ?? 'Failed to send verification email');
+      _logger
+          .e('FirebaseAuthException during email verification: ${e.message}');
+      throw ServerException(
+          message: e.message ?? 'Failed to send verification email');
     } catch (e) {
       _logger.e('Unknown error during email verification: $e');
       throw ServerException(message: 'Unknown error during email verification');
@@ -233,13 +245,17 @@ class AuthRemoteDataSourcesImpl implements AuthRemoteDataSources {
       await firestore.collection('users').doc(user.uid).update({
         'emailVerified': true,
       });
-      _logger.i('Email verification status updated in Firestore for UID: ${user.uid}.');
+      _logger.i(
+          'Email verification status updated in Firestore for UID: ${user.uid}.');
     } on FirebaseException catch (e) {
-      _logger.e('FirebaseException during updating email verification: ${e.message}');
-      throw ServerException(message: e.message ?? 'Failed to update email verification');
+      _logger.e(
+          'FirebaseException during updating email verification: ${e.message}');
+      throw ServerException(
+          message: e.message ?? 'Failed to update email verification');
     } catch (e) {
       _logger.e('Unknown error during updating email verification: $e');
-      throw ServerException(message: 'Unknown error during updating email verification');
+      throw ServerException(
+          message: 'Unknown error during updating email verification');
     }
   }
 
