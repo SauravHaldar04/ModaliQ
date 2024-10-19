@@ -310,48 +310,97 @@ class _StudentHomePageState extends State<StudentHomePage> {
                 children: [
                   // Welcome Banner
                   Container(
-                    padding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                     decoration: BoxDecoration(
-                      color: Pallete.primaryColor,
-                      borderRadius: BorderRadius.circular(15),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [Colors.indigo[700]!, Colors.indigo[500]!],
+                      ),
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(30),
+                        bottomRight: Radius.circular(30),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.indigo[300]!.withOpacity(0.5),
+                          spreadRadius: 5,
+                          blurRadius: 10,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // Welcome text
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Welcome back, $firstName!',
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                'Let\'s continue your learning journey!',
+                                'Welcome back,',
                                 style: TextStyle(
                                   fontSize: 16,
                                   color: Colors.white70,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                firstName,
+                                style: TextStyle(
+                                  fontSize: 28,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                              SizedBox(height: 12),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  'Continue your learning journey!',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        CircleAvatar(
-                          radius: 30,
-                          backgroundColor: Colors.white,
+                        SizedBox(width: 20),
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white, width: 2),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                spreadRadius: 2,
+                                blurRadius: 5,
+                                offset: Offset(0, 2),
+                              ),
+                            ],
+                          ),
                           child: CircleAvatar(
-                            radius: 28,
-                            backgroundColor: Pallete.primaryColor,
-                            child: Icon(
-                              Icons.person,
-                              color: Colors.white,
-                              size: 30,
+                            radius: 40,
+                            backgroundColor: Colors.white,
+                            child: CircleAvatar(
+                              radius: 38,
+                              backgroundColor: Pallete.primaryColor,
+                              child: Icon(
+                                Icons.person,
+                                color: Colors.white,
+                                size: 36,
+                              ),
                             ),
                           ),
                         ),
@@ -361,41 +410,132 @@ class _StudentHomePageState extends State<StudentHomePage> {
                   SizedBox(height: 20),
 
                   // Syllabus Upload Section
-                  Text(
-                    'Your Syllabus',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 10),
-                  syllabusUrl != null
-                      ? Column(
-                          children: [
-                            Text('Syllabus uploaded:'),
-                            SizedBox(height: 10),
-                            ElevatedButton(
-                              onPressed: () {
-                                _removeSyllabus();
-                              },
-                              child: Text('Remove Syllabus'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                              ),
-                            ),
-                            SizedBox(height: 10),
-                            ElevatedButton(
-                              onPressed: () {
-                                // Open the syllabus download link
-                                // _launchURL(syllabusUrl!);
-                              },
-                              child: Text('Download Syllabus'),
-                            ),
-                          ],
-                        )
-                      : ElevatedButton(
-                          onPressed: () {
-                            _uploadSyllabus();
-                          },
-                          child: Text('Upload Syllabus'),
+                  Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15)),
+                    child: Container(
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Colors.blue[100]!, Colors.blue[50]!],
                         ),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.book,
+                                  color: Colors.blue[700], size: 28),
+                              SizedBox(width: 10),
+                              Text(
+                                'Your Syllabus',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue[800],
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 20),
+                          syllabusUrl != null
+                              ? Column(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                            color: Colors.blue[200]!),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.check_circle,
+                                              color: Colors.green),
+                                          SizedBox(width: 10),
+                                          Text(
+                                            'Syllabus uploaded',
+                                            style: TextStyle(
+                                              color: Colors.blue[700],
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: 20),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        ElevatedButton.icon(
+                                          icon: Icon(Icons.delete),
+                                          label: Text(
+                                            'Remove',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          onPressed: _removeSyllabus,
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.red[400],
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 20, vertical: 12),
+                                          ),
+                                        ),
+                                        ElevatedButton.icon(
+                                          icon: Icon(Icons.download),
+                                          label: Text(
+                                            'Download',
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                          onPressed: () {
+                                            // Open the syllabus download link
+                                            // _launchURL(syllabusUrl!);
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.green[400],
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 20, vertical: 12),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                )
+                              : Center(
+                                  child: ElevatedButton.icon(
+                                    icon: Icon(Icons.upload_file),
+                                    label: Text('Upload Syllabus'),
+                                    onPressed: _uploadSyllabus,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue[600],
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 30, vertical: 15),
+                                    ),
+                                  ),
+                                ),
+                        ],
+                      ),
+                    ),
+                  ),
                   SizedBox(height: 20),
 
                   // Progress Overview
