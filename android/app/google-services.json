@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "447052592316",
+    "project_id": "datahack3-e90e1",
+    "storage_bucket": "datahack3-e90e1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:447052592316:android:f3512a2c04d56fbcb28cb9",
+        "android_client_info": {
+          "package_name": "com.example.datahack"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCHVTgPiLzY3YeWDBPdlg3ZGTjxHKpXEMw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
