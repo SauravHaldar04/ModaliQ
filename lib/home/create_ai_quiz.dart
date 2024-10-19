@@ -1,5 +1,9 @@
+import 'package:datahack/home/ai_generated_quiz_input.dart';
+import 'package:datahack/resources/database.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:uuid/uuid.dart';
 
 class CreateAIQuiz extends StatefulWidget {
   @override
@@ -7,11 +11,22 @@ class CreateAIQuiz extends StatefulWidget {
 }
 
 class _CreateAIQuizState extends State<CreateAIQuiz> {
+  final FirebaseAuth auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
   String? grade;
   String? subject;
   String? topic;
+  late DatabaseService databaseService;
+  bool isLoading = false;
+  String? quizId;
 
+  @override
+  void initState() {
+    super.initState();
+    databaseService = DatabaseService(uid: auth.currentUser!.uid);
+  }
+
+  // List of options
   List<String> grades = ['11th', '12th'];
   List<String> subjects = [
     'Maths',
@@ -20,6 +35,42 @@ class _CreateAIQuizState extends State<CreateAIQuiz> {
     'Biology',
     'English'
   ];
+
+  createQuiz() {
+    quizId = Uuid().v1();
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        isLoading = true;
+      });
+
+      Map<String, String> quizData = {
+        "grade": grade!,
+        "subject": subject!,
+        "topic": topic!,
+        "id": quizId!,
+      };
+
+      databaseService.addQuizData(quizData, quizId!).then((value) {
+        setState(() {
+          isLoading = false;
+        });
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => AIQuizInputPage(
+                  quizId: quizId!,
+                  grade: grade!,
+                  subject: subject!,
+                  topic: topic!)),
+        );
+      }).catchError((error) {
+        print('Error in createQuiz: $error');
+        setState(() {
+          isLoading = false;
+        });
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +166,7 @@ class _CreateAIQuizState extends State<CreateAIQuiz> {
                         ElevatedButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
-                              // Process data and generate quiz
+                              createQuiz();
                             }
                           },
                           child: Text('Generate Quiz'),
