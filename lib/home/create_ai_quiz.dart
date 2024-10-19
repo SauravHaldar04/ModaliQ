@@ -2,7 +2,6 @@ import 'package:datahack/home/ai_generated_quiz_input.dart';
 import 'package:datahack/resources/database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:uuid/uuid.dart';
 
 class CreateAIQuiz extends StatefulWidget {
@@ -26,7 +25,6 @@ class _CreateAIQuizState extends State<CreateAIQuiz> {
     databaseService = DatabaseService(uid: auth.currentUser!.uid);
   }
 
-  // List of options
   List<String> grades = ['11th', '12th'];
   List<String> subjects = [
     'Maths',
@@ -75,120 +73,22 @@ class _CreateAIQuizState extends State<CreateAIQuiz> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Create AI Quiz'),
+        backgroundColor: Colors.deepPurpleAccent,
+      ),
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF6448FE), Color(0xFF5FC6FF)],
-          ),
-        ),
-        child: SafeArea(
+        color: Colors.grey[100],
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 40),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Create AI Quiz',
-                    style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Text(
-                    'Generate a personalized quiz with AI',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.white70,
-                    ),
-                  ),
-                  SizedBox(height: 40),
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              'Student Grade',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white70,
-                              ),
-                            ),
-                            SizedBox(width: 10),
-                            Container(
-                              width: 93,
-                              child: _buildDropdown(
-                                'Grade',
-                                grade,
-                                grades,
-                                (String? newValue) {
-                                  setState(() {
-                                    grade = newValue;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 20),
-                        Row(
-                          children: [
-                            Text(
-                              'Subject',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white70,
-                              ),
-                            ),
-                            SizedBox(width: 10),
-                            Expanded(
-                                child: _buildDropdown(
-                              'Subject',
-                              subject,
-                              subjects,
-                              (String? newValue) {
-                                setState(() {
-                                  subject = newValue;
-                                });
-                              },
-                            )),
-                          ],
-                        ),
-                        SizedBox(height: 20),
-                        _buildTextField('Topic'),
-                        SizedBox(height: 40),
-                        ElevatedButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              createQuiz();
-                            }
-                          },
-                          child: Text('Generate Quiz'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor: Color(0xFF6448FE),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 50, vertical: 15),
-                            textStyle: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildQuizSetupCard(),
+                SizedBox(height: 20),
+                _buildGenerateQuizButton(),
+              ],
             ),
           ),
         ),
@@ -196,32 +96,82 @@ class _CreateAIQuizState extends State<CreateAIQuiz> {
     );
   }
 
-  Widget _buildDropdown(String label, String? value, List<String> items,
-      Function(String?) onChanged) {
+  Widget _buildQuizSetupCard() {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: value,
-          items: items.map((item) {
-            return DropdownMenuItem<String>(
-              value: item,
-              child: Text(item),
-            );
-          }).toList(),
-          onChanged: onChanged,
-          dropdownColor: Colors.white.withOpacity(0.2),
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.white,
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.deepPurpleAccent, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.deepPurpleAccent.withOpacity(0.3),
+            blurRadius: 10,
+            spreadRadius: 2,
+            offset: Offset(0, 5),
           ),
-          icon: SvgPicture.asset('assets/icons/arrow_down.svg', width: 20),
+        ],
+      ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Quiz Setup',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.deepPurple,
+              ),
+            ),
+            SizedBox(height: 20),
+            _buildDropdown('Grade', grade, grades, (String? newValue) {
+              setState(() {
+                grade = newValue;
+              });
+            }),
+            SizedBox(height: 10),
+            _buildDropdown('Subject', subject, subjects, (String? newValue) {
+              setState(() {
+                subject = newValue;
+              });
+            }),
+            SizedBox(height: 10),
+            _buildTextField('Topic'),
+          ],
         ),
       ),
+    );
+  }
+
+  Widget _buildDropdown(String label, String? value, List<String> items,
+      Function(String?) onChanged) {
+    return Row(
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontSize: 18, color: Colors.black54),
+        ),
+        SizedBox(width: 10),
+        Expanded(
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: value,
+              items: items.map((item) {
+                return DropdownMenuItem<String>(
+                  value: item,
+                  child: Text(item),
+                );
+              }).toList(),
+              onChanged: onChanged,
+              dropdownColor: Colors.white,
+              style: TextStyle(fontSize: 18, color: Colors.black87),
+              icon: Icon(Icons.arrow_downward, color: Colors.deepPurpleAccent),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -229,16 +179,13 @@ class _CreateAIQuizState extends State<CreateAIQuiz> {
     return TextFormField(
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(
-          fontSize: 16,
-          color: Colors.white70,
-        ),
+        labelStyle: TextStyle(fontSize: 18, color: Colors.black54),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white70),
+          borderSide: BorderSide(color: Colors.black54),
           borderRadius: BorderRadius.circular(15),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.white),
+          borderSide: BorderSide(color: Colors.deepPurpleAccent),
           borderRadius: BorderRadius.circular(15),
         ),
       ),
@@ -248,6 +195,34 @@ class _CreateAIQuizState extends State<CreateAIQuiz> {
           topic = val;
         });
       },
+    );
+  }
+
+  Widget _buildGenerateQuizButton() {
+    return ElevatedButton(
+      onPressed: () {
+        if (_formKey.currentState!.validate()) {
+          createQuiz();
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.deepPurple,
+        padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.play_arrow, color: Colors.white),
+          SizedBox(width: 8),
+          Text(
+            'Generate Quiz',
+            style: TextStyle(fontSize: 18, color: Colors.white),
+          ),
+        ],
+      ),
     );
   }
 }
