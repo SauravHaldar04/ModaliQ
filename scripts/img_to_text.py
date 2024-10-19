@@ -10,7 +10,7 @@ def image_to_text(image_file):
     
     return text
 
-# Example usage
-if __name__ == "__main__":
-    image_file = " "
-    print(image_to_text(image_file))
+# # Example usage
+# if __name__ == "__main__":
+#     image_file = " "
+#     print(image_to_text(image_file))

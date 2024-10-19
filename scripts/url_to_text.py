@@ -6,7 +6,7 @@ from googleapiclient.discovery import build
 from youtube_transcript_api import YouTubeTranscriptApi
 
 # Replace with your own API key
-YOUTUBE_API_KEY = " "
+YOUTUBE_API_KEY = "AIzaSyBkyTVGU3hKEYCgaY4HfU6Qq161b8Q_yr4 "
 
 def get_youtube_transcript(url):
     try:
@@ -68,14 +68,14 @@ def url_to_text(url):
     else:
         return get_webpage_text(url)
 
-# Usage
-urls = [
-    "https://www.youtube.com/watch?v=hiOjTJgl6GU",
-    # "https://www.example.com"  # Add a non-YouTube URL for testing
-]
+# # Usage
+# urls = [
+#     "https://www.youtube.com/watch?v=hiOjTJgl6GU",
+#     # "https://www.example.com"  # Add a non-YouTube URL for testing
+# ]
 
-for url in urls:
-    print(f"Processing URL: {url}")
-    text = url_to_text(url)
-    print(text[:500])  # Print the first 500 characters as a preview
-    print("\n" + "="*50 + "\n")
+# for url in urls:
+#     print(f"Processing URL: {url}")
+#     text = url_to_text(url)
+#     print(text[:500])  # Print the first 500 characters as a preview
+#     print("\n" + "="*50 + "\n")

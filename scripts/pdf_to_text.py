@@ -21,15 +21,15 @@ def pdf_to_text(pdf_file):
     
     return text
 
-# Usage
-pdf_file = "/kaggle/input/datasetforpdftotext/NCERT-Class-11-Chemistry-Part-1.pdf"
-text = pdf_to_text(pdf_file)
+# # Usage
+# pdf_file = "/kaggle/input/datasetforpdftotext/NCERT-Class-11-Chemistry-Part-1.pdf"
+# text = pdf_to_text(pdf_file)
 
-# Print first 1000 characters to preview
-print(text[:1000])
+# # Print first 1000 characters to preview
+# print(text[:1000])
 
-# Save the entire text to a file
-with io.open("extracted_text.txt", "w", encoding="utf-8") as f:
-    f.write(text)
+# # Save the entire text to a file
+# with io.open("extracted_text.txt", "w", encoding="utf-8") as f:
+#     f.write(text)
 
-print(f"Full text has been saved to 'extracted_text.txt'")
+# print(f"Full text has been saved to 'extracted_text.txt'")

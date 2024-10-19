@@ -18,7 +18,7 @@ def video_to_text(video_file):
     
     return text
 
-# Usage
-video_file = "/content/1. while Loop and do..while Loop.mp4"
-text = video_to_text(video_file)
-print(text)
+# # Usage
+# video_file = "/content/1. while Loop and do..while Loop.mp4"
+# text = video_to_text(video_file)
+# print(text)
