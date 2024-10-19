@@ -114,17 +114,17 @@ class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
                     ),
                   ),
                   SizedBox(height: 20),
-                  Center(
-                    child: QuizFlashcard(
-                        question: 'What is the color of sky ?',
-                        option1: "Red",
-                        option2: "Green",
-                        option3: "Yellow",
-                        correctOption: "Blue",
-                        explanation:
-                            "Sky is blue because of Rayleigh scattering."),
-                  ),
-                  SizedBox(height: 20),
+                  // Center(
+                  //   child: QuizFlashcard(
+                  //       question: 'What is the color of sky ?',
+                  //       option1: "Red",
+                  //       option2: "Green",
+                  //       option3: "Yellow",
+                  //       correctOption: "Blue",
+                  //       explanation:
+                  //           "Sky is blue because of Rayleigh scattering."),
+                  // ),
+                  // SizedBox(height: 20),
                 ],
               ),
             ],

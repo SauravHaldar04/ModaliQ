@@ -1,4 +1,3 @@
-import 'package:datahack/core/theme/app_pallete.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_flip_card/flutter_flip_card.dart';
 import 'dart:math';
@@ -10,9 +9,11 @@ class QuizFlashcard extends StatefulWidget {
   final String option3;
   final String correctOption;
   final String explanation;
+  final VoidCallback onSubmitted;
 
   const QuizFlashcard({
     Key? key,
+    required this.onSubmitted,
     required this.question,
     required this.option1,
     required this.option2,
@@ -28,31 +29,51 @@ class QuizFlashcard extends StatefulWidget {
 class _QuizFlashcardState extends State<QuizFlashcard> {
   String? selectedOption;
   late FlipCardController _controller;
-  late List<String> options;
 
   @override
   void initState() {
     super.initState();
     _controller = FlipCardController();
 
-    // Combine options into a list and randomize
-    options = [
+    // Make sure the card is always showing the front when the widget is initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_controller.state!.isFront) {
+        _controller.flipcard();
+      }
+    });
+  }
+
+  List<String> _getRandomizedOptions() {
+    // Combine options into a list and randomize, ensuring no duplicates
+    List<String> options = [
       widget.option1,
       widget.option2,
       widget.option3,
       widget.correctOption
     ];
     options.shuffle(Random());
+    return options;
   }
 
   void _submitAnswer() {
     if (selectedOption != null) {
       _controller.flipcard();
+      // Delay next question after flipping animation
+      Future.delayed(Duration(milliseconds: 600), () {
+        widget
+            .onSubmitted(); // Call the parent-provided callback to go to the next question
+        selectedOption =
+            null; // Reset the selected option for the next question
+        _controller.flipcard(); // Reset to front for the next question
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final options =
+        _getRandomizedOptions(); // Get randomized options every time build is called
+
     return FlipCard(
       rotateSide: RotateSide.right,
       controller: _controller,
@@ -61,7 +82,7 @@ class _QuizFlashcardState extends State<QuizFlashcard> {
         decoration: BoxDecoration(
           color: const Color.fromARGB(255, 228, 247, 255).withOpacity(0.3),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Pallete.primaryColor, width: 2),
+          border: Border.all(color: Colors.blue, width: 2),
           boxShadow: [
             BoxShadow(
               color: Colors.blueAccent.withOpacity(0.3),
@@ -110,7 +131,10 @@ class _QuizFlashcardState extends State<QuizFlashcard> {
                 )),
             SizedBox(height: 15),
             ElevatedButton(
-              onPressed: selectedOption != null ? _submitAnswer : null,
+              onPressed: () {
+                selectedOption != null ? _submitAnswer : null;
+                widget.onSubmitted();
+              },
               child: Text(
                 'Submit',
                 style: TextStyle(color: Colors.white),
@@ -182,8 +206,8 @@ class _QuizFlashcardState extends State<QuizFlashcard> {
             SizedBox(height: 15),
             ElevatedButton(
               onPressed: () {
-                // Optionally, add any action after viewing the answer
-                _controller.flipcard(); // Option to flip back
+                // Implement what happens when "Got It!" is pressed
+                _controller.flipcard(); // Flip back to front
               },
               child: Text('Got It!', style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
