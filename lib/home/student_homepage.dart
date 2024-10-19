@@ -4,10 +4,26 @@ import 'package:datahack/widgets/clock_card.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:file_picker/file_picker.dart';
 
-class StudentHomePage extends StatelessWidget {
+class StudentHomePage extends StatefulWidget {
+  @override
+  _StudentHomePageState createState() => _StudentHomePageState();
+}
+
+class _StudentHomePageState extends State<StudentHomePage> {
   final _firestore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
+  final _storage = FirebaseStorage.instance;
+
+  String? syllabusUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _getSyllabusUrl();
+  }
 
   Stream<DocumentSnapshot<Map<String, dynamic>>> _userStream() {
     return _firestore
@@ -28,6 +44,91 @@ class StudentHomePage extends StatelessWidget {
         SnackBar(content: Text('Failed to log out.')),
       );
     }
+  }
+
+  Future<void> _uploadSyllabus() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'], // restrict to PDF files
+      );
+
+      if (result != null) {
+        final file = result.files.single;
+        final fileName = 'syllabus_${_auth.currentUser!.uid}.${file.extension}';
+        print(fileName);
+
+        // Check if file has bytes
+        if (file.bytes != null) {
+          final ref = _storage.ref().child('syllabus/$fileName');
+
+          // Upload file
+          final uploadTask = ref.putData(file.bytes!);
+
+          // Wait for the upload task to complete and get download URL
+          final snapshot = await uploadTask;
+          final downloadUrl = await snapshot.ref.getDownloadURL();
+
+          // Save URL in Firestore
+          await _firestore
+              .collection('users')
+              .doc(_auth.currentUser!.uid)
+              .update({'syllabusUrl': downloadUrl});
+
+          setState(() {
+            syllabusUrl = downloadUrl;
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Syllabus uploaded successfully!')),
+          );
+        } else {
+          throw Exception('File bytes are null.');
+        }
+      } else {
+        throw Exception('No file selected.');
+      }
+    } catch (e) {
+      print("Error uploading file: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to upload syllabus.')),
+      );
+    }
+  }
+
+  Future<void> _removeSyllabus() async {
+    if (syllabusUrl != null) {
+      try {
+        final ref = _storage.refFromURL(syllabusUrl!);
+        await ref.delete();
+
+        await _firestore
+            .collection('users')
+            .doc(_auth.currentUser!.uid)
+            .update({'syllabusUrl': FieldValue.delete()});
+
+        setState(() {
+          syllabusUrl = null;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Syllabus removed successfully!')),
+        );
+      } catch (e) {
+        print("Error removing file: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to remove syllabus.')),
+        );
+      }
+    }
+  }
+
+  Future<void> _getSyllabusUrl() async {
+    final userDoc =
+        await _firestore.collection('users').doc(_auth.currentUser!.uid).get();
+    setState(() {
+      syllabusUrl = userDoc.data()?['syllabusUrl'];
+    });
   }
 
   Future<void> _scheduleSession(BuildContext context) async {
@@ -185,7 +286,6 @@ class StudentHomePage extends StatelessWidget {
               return Center(child: Text('No user data found.'));
             }
 
-            // Retrieving the firstName from Firestore
             String firstName = snapshot.data!.get('firstName');
 
             return SingleChildScrollView(
@@ -199,14 +299,6 @@ class StudentHomePage extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: Pallete.primaryColor,
                       borderRadius: BorderRadius.circular(15),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.2),
-                          spreadRadius: 2,
-                          blurRadius: 5,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -235,8 +327,6 @@ class StudentHomePage extends StatelessWidget {
                             ],
                           ),
                         ),
-
-                        // Profile icon or initials
                         CircleAvatar(
                           radius: 30,
                           backgroundColor: Colors.white,
@@ -253,7 +343,44 @@ class StudentHomePage extends StatelessWidget {
                       ],
                     ),
                   ),
+                  SizedBox(height: 20),
 
+                  // Syllabus Upload Section
+                  Text(
+                    'Your Syllabus',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 10),
+                  syllabusUrl != null
+                      ? Column(
+                          children: [
+                            Text('Syllabus uploaded:'),
+                            SizedBox(height: 10),
+                            ElevatedButton(
+                              onPressed: () {
+                                _removeSyllabus();
+                              },
+                              child: Text('Remove Syllabus'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            ElevatedButton(
+                              onPressed: () {
+                                // Open the syllabus download link
+                                // _launchURL(syllabusUrl!);
+                              },
+                              child: Text('Download Syllabus'),
+                            ),
+                          ],
+                        )
+                      : ElevatedButton(
+                          onPressed: () {
+                            _uploadSyllabus();
+                          },
+                          child: Text('Upload Syllabus'),
+                        ),
                   SizedBox(height: 20),
 
                   // Progress Overview
@@ -341,6 +468,14 @@ class StudentHomePage extends StatelessWidget {
     );
   }
 
+//   void _launchURL(String url) async {
+//     if (await canLaunch(url)) {
+//       await launch(url);
+//     } else {
+//       throw 'Could not launch $url';
+//     }
+//   }
+// }
   // Flashcard Recommendations Card
   Widget _buildFlashcardRecommendations() {
     return Container(
