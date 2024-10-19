@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'package:devopia_overload_oblivion/screens/quiz_play.dart';
+import 'package:datahack/home/quiz_play.dart';
+import 'package:datahack/home/student_homepage.dart';
+import 'package:datahack/secrets.dart';
 import 'package:flutter/material.dart';
 import 'package:dash_chat_2/dash_chat_2.dart';
 import 'package:http/http.dart' as http;
-import 'package:devopia_overload_oblivion/screens/student_homepage.dart';
-import 'secrets.dart';
 
 class chatHelp2 extends StatefulWidget {
   final List<Map<String, dynamic>> questions;

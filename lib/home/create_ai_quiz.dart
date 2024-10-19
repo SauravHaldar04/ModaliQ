@@ -1,11 +1,8 @@
+import 'package:datahack/global/global_var.dart';
+import 'package:datahack/home/ai_generated_quiz_input.dart';
+import 'package:datahack/resources/database.dart';
+import 'package:datahack/widgets/blue_button.dart';
 import 'package:flutter/material.dart';
-import 'package:devopia_overload_oblivion/global/global_var.dart';
-import 'package:devopia_overload_oblivion/models/teacher_model.dart';
-import 'package:devopia_overload_oblivion/providers/teacher_provider.dart';
-import 'package:devopia_overload_oblivion/resources/database.dart';
-import 'package:devopia_overload_oblivion/screens/add_question.dart';
-import 'package:devopia_overload_oblivion/screens/ai_generated_quiz_input.dart';
-import 'package:devopia_overload_oblivion/widgets/blue_button.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 

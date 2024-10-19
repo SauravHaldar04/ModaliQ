@@ -1,10 +1,10 @@
-import 'package:devopia_overload_oblivion/screens/quiz_play.dart';
+import 'package:datahack/home/chat_help2.dart';
+import 'package:datahack/home/quiz_play.dart';
 import 'package:flutter/material.dart';
-import 'package:devopia_overload_oblivion/screens/chat_help2.dart';
 
 class ChatLoadScreen extends StatefulWidget {
   final List<Map<String, dynamic>> questions;
-  const ChatLoadScreen({super.key,required this.questions});
+  const ChatLoadScreen({super.key, required this.questions});
 
   @override
   State<ChatLoadScreen> createState() => _ChatLoadScreenState();
@@ -18,7 +18,10 @@ class _ChatLoadScreenState extends State<ChatLoadScreen> {
     Future.delayed(Duration(seconds: 2), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) =>  chatHelp2(questions: questions,)),
+        MaterialPageRoute(
+            builder: (context) => chatHelp2(
+                  questions: questions,
+                )),
       );
     });
   }

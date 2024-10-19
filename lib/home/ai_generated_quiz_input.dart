@@ -1,12 +1,11 @@
-import 'package:devopia_overload_oblivion/screens/ai_generated_page.dart';
+import 'package:datahack/global/global_var.dart';
+import 'package:datahack/home/ai_generated_page.dart';
+import 'package:datahack/resources/database.dart';
+import 'package:datahack/widgets/blue_button.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:devopia_overload_oblivion/global/global_var.dart';
-import 'package:devopia_overload_oblivion/resources/database.dart';
 import 'dart:convert';
 
-// import 'package:devopia_overload_oblivion/screens/ai_generated_page.dart';
-import 'package:devopia_overload_oblivion/widgets/blue_button.dart';
 import 'package:uuid/uuid.dart';
 
 class AIQuizInputPage extends StatefulWidget {

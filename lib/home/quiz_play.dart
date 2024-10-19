@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:datahack/home/results.dart';
+import 'package:datahack/models/question_model.dart';
+import 'package:datahack/resources/database.dart';
+import 'package:datahack/widgets/quiz_play_widgets.dart';
+import 'package:datahack/widgets/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:devopia_overload_oblivion/models/question_model.dart';
-import 'package:devopia_overload_oblivion/resources/database.dart';
-import 'package:devopia_overload_oblivion/screens/results.dart';
-import 'package:devopia_overload_oblivion/widgets/widgets.dart';
-import 'package:devopia_overload_oblivion/widgets/quiz_play_widgets.dart';
 
 class QuizPlay extends StatefulWidget {
   final String quizId;
@@ -153,7 +153,6 @@ class _QuizPlayState extends State<QuizPlay> {
                     questions: questions),
               ),
             );
-            
           }),
     );
   }
