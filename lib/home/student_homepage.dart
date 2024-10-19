@@ -1,4 +1,7 @@
+import 'dart:typed_data';
+
 import 'package:datahack/core/theme/app_pallete.dart';
+import 'package:datahack/core/utils/pickFile.dart';
 import 'package:datahack/features/auth/presentation/pages/landing_page.dart';
 import 'package:datahack/widgets/clock_card.dart';
 import 'package:flutter/material.dart';
@@ -48,22 +51,22 @@ class _StudentHomePageState extends State<StudentHomePage> {
 
   Future<void> _uploadSyllabus() async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final file = await pickFile(
         type: FileType.custom,
         allowedExtensions: ['pdf'], // restrict to PDF files
       );
 
-      if (result != null) {
-        final file = result.files.single;
-        final fileName = 'syllabus_${_auth.currentUser!.uid}.${file.extension}';
+      if (file != null) {
+        final fileName =
+            'syllabus_${_auth.currentUser!.uid}.${file.path.split('.').last}';
         print(fileName);
 
         // Check if file has bytes
-        if (file.bytes != null) {
+        if (file != null) {
           final ref = _storage.ref().child('syllabus/$fileName');
 
           // Upload file
-          final uploadTask = ref.putData(file.bytes!);
+          final uploadTask = ref.putFile(file);
 
           // Wait for the upload task to complete and get download URL
           final snapshot = await uploadTask;
