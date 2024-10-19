@@ -3,6 +3,7 @@ import pdf_to_text
 import audio_to_text
 import video_to_text
 import url_to_text
+import ppt_to_txt
 import preprocessing
 from langchain_cohere import ChatCohere
 from langchain.prompts import PromptTemplate
@@ -27,6 +28,9 @@ class CustomFlashcardGenerator:
 
     def process_url(self, file):
         self.text = url_to_text.url_to_text(file)
+    
+    def process_ppt(self, file):
+        self.text=ppt_to_txt.ppt_to_text(file)
 
     def get_text(self, file, filetype):
         if filetype == 'img':
@@ -41,6 +45,8 @@ class CustomFlashcardGenerator:
             self.process_url(file)
         elif filetype == 'text':
             self.text = file
+        elif filetype == 'ppt':
+            self.process_ppt(file)
         else:
             raise ValueError(f"Unsupported file type: {filetype}")
     
@@ -157,10 +163,11 @@ class CustomFlashcardGenerator:
 
 # file='/home/yuvraj/Coding/OverloadOblivion_Datahack/data/image.png'
 # file='/home/yuvraj/Coding/OverloadOblivion_Datahack/data/Saurav_Resume (7).pdf'
+# file="/home/yuvraj/Coding/OverloadOblivion_Datahack/data/ch 1.pptx"
 
-# flashcard_text = generator.give_flashcards(file, 'pdf','11')
+# flashcard_text = generator.give_flashcards(file, 'ppt','11')
 
-# # Print out structured flashcard output
+# # # Print out structured flashcard output
 # print("Generated Flashcards:")
 # for flashcard in flashcard_text:
 #     print(f"Q: {flashcard['question']}\nA: {flashcard['answer']}\n")
