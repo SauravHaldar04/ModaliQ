@@ -138,7 +138,7 @@ class _chatHelp2State extends State<chatHelp2> {
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const StudentHomepage()),
+              MaterialPageRoute(builder: (context) => StudentHomePage()),
             );
           },
         ),
