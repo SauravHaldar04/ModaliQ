@@ -1,3 +1,4 @@
+import 'package:datahack/core/widgets/project_textfield.dart';
 import 'package:flutter/material.dart';
 
 class CreateFlashcardPage extends StatefulWidget {
@@ -8,14 +9,20 @@ class CreateFlashcardPage extends StatefulWidget {
 }
 
 class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
+  TextEditingController topicController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Create FlashCards"),
+        title: Text(
+          "Create FlashCards",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: Column(
-        children: [],
+        children: [
+          ProjectTextfield(text: "Enter Topic :", controller: topicController),
+        ],
       ),
     );
   }

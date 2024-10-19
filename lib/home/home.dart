@@ -1,3 +1,4 @@
+import 'package:datahack/flashcards/create_flashcard_page.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -12,7 +13,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     UserDashboard(),
-    FlashCardAnalysis(),
+    CreateFlashcardPage(),
     QuizPage(),
     ContestPage(),
     ChatHelp(),

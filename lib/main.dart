@@ -4,6 +4,7 @@ import 'package:datahack/core/utils/loader.dart';
 import 'package:datahack/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:datahack/features/auth/presentation/pages/landing_page.dart';
 import 'package:datahack/features/auth/presentation/pages/verification_page.dart';
+import 'package:datahack/home/home.dart';
 import 'package:datahack/init_dependencies.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // Use a separate widget to initialize the AuthBloc
     return MaterialApp(
-      title: 'Aparna Education',
+      title: '',
       theme: AppTheme.appTheme,
       home: const AppInitializer(),
     );
@@ -79,11 +80,7 @@ class _AppInitializerState extends State<AppInitializer> {
             print(state);
             return const VerificationPage();
           } else if (state is AuthEmailVerified) {
-            return const Scaffold(
-              body: Center(
-                child: Text('Email verified'),
-              ),
-            );
+            return const HomePage();
           } else {
             return const LandingPage();
           }
