@@ -1,12 +1,18 @@
-import 'package:devopia_overload_oblivion/screens/quiz_play.dart';
+import 'package:datahack/home/chat_help1.dart';
+import 'package:datahack/home/quiz_play.dart';
 import 'package:flutter/material.dart';
-import 'package:devopia_overload_oblivion/screens/chat_help1.dart';
+
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class Results extends StatefulWidget {
   final int total, correct, incorrect, notattempted;
-  final List<Map<String,dynamic>> questions;
-  Results({required this.incorrect,required this.total,required this.correct,required this.notattempted,required this.questions});
+  final List<Map<String, dynamic>> questions;
+  Results(
+      {required this.incorrect,
+      required this.total,
+      required this.correct,
+      required this.notattempted,
+      required this.questions});
 
   @override
   _ResultsState createState() => _ResultsState();
@@ -21,8 +27,13 @@ class _ResultsState extends State<Results> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("${widget.correct}/ ${widget.total}", style: TextStyle(fontSize: 25),),
-              SizedBox(height: 5,),
+              Text(
+                "${widget.correct}/ ${widget.total}",
+                style: TextStyle(fontSize: 25),
+              ),
+              SizedBox(
+                height: 5,
+              ),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 24),
                 child: Text(
@@ -30,7 +41,9 @@ class _ResultsState extends State<Results> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(height: 24,),
+              SizedBox(
+                height: 24,
+              ),
               SfCircularChart(
                 series: <CircularSeries>[
                   PieSeries<ChartData, String>(
@@ -44,24 +57,35 @@ class _ResultsState extends State<Results> {
                   ),
                 ],
               ),
-              SizedBox(height: 24,),
+              SizedBox(
+                height: 24,
+              ),
               GestureDetector(
-                onTap: (){
+                onTap: () {
                   Navigator.pop(context);
                 },
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(30)
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(30)),
+                  child: Text(
+                    "Go to home",
+                    style: TextStyle(color: Colors.white, fontSize: 19),
                   ),
-                  child: Text("Go to home", style: TextStyle(color: Colors.white, fontSize: 19),),
                 ),
               ),
-              SizedBox(height: 16,),
+              SizedBox(
+                height: 16,
+              ),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ChatLoadScreen(questions: questions,)));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ChatLoadScreen(
+                                questions: questions,
+                              )));
                 },
                 child: Text('Need for improvements?'),
               ),

@@ -1,9 +1,9 @@
 import 'dart:io';
 
+import 'package:datahack/global/global_var.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:devopia_overload_oblivion/global/global_var.dart';
 
 class Assignments extends StatefulWidget {
   const Assignments({Key? key}) : super(key: key);

@@ -1,7 +1,6 @@
-
+import 'package:datahack/models/student_model.dart';
+import 'package:datahack/resources/auth_methods.dart';
 import 'package:flutter/material.dart';
-import 'package:devopia_overload_oblivion/models/student_model.dart';
-import 'package:devopia_overload_oblivion/resources/auth_methods.dart';
 
 class StudentProvider with ChangeNotifier {
   Student? _student;
