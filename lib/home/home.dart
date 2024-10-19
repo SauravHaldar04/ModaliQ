@@ -1,4 +1,7 @@
 import 'package:datahack/flashcards/create_flashcard_page.dart';
+import 'package:datahack/home/assignments_short.dart';
+import 'package:datahack/home/chat_help1.dart';
+import 'package:datahack/home/chat_help2.dart';
 import 'package:datahack/home/contest_page.dart';
 import 'package:datahack/home/create_ai_quiz.dart';
 import 'package:datahack/home/student_homepage.dart';
@@ -19,7 +22,7 @@ class _HomePageState extends State<HomePage> {
     CreateFlashcardPage(),
     CreateAIQuiz(),
     ContestPage(),
-    ChatHelp(),
+    ModernAssignmentCreator(),
   ];
 
   @override
@@ -76,9 +79,9 @@ class _HomePageState extends State<HomePage> {
               label: 'Contest',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.chat_bubble_outline),
-              activeIcon: Icon(Icons.chat_bubble),
-              label: 'Chat',
+              icon: Icon(Icons.picture_as_pdf_outlined),
+              activeIcon: Icon(Icons.picture_as_pdf),
+              label: 'Assignment & Short',
             ),
           ],
         ),
@@ -106,5 +109,6 @@ class QuizPage extends StatelessWidget {
 
 class ChatHelp extends StatelessWidget {
   @override
-  Widget build(BuildContext context) => Center(child: Text('Chat Help'));
+  Widget build(BuildContext context) =>
+      Center(child: Text('Assignment & Short'));
 }

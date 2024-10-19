@@ -256,6 +256,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('Home'),
+        backgroundColor: Colors.deepPurpleAccent,
       ),
       drawer: Drawer(
         child: ListView(
@@ -263,7 +264,7 @@ class _StudentHomePageState extends State<StudentHomePage> {
           children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Pallete.primaryColor,
+                color: Colors.deepPurpleAccent,
               ),
               child: Text(
                 'Menu',

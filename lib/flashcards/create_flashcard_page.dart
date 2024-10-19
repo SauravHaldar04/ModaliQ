@@ -50,85 +50,101 @@ class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
           "Create FlashCards",
           style: TextStyle(color: Colors.white),
         ),
+        backgroundColor: Colors.deepPurpleAccent,
       ),
-      body: Padding(
+      body: Container(
+        color: Colors.grey[100],
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildInputCard(),
+                SizedBox(height: 20),
+                _buildInputTypeSection(),
+                SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputCard() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              ProjectTextfield(
-                text: "Enter Subject:",
-                controller: subjectController,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Flashcard Details',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.deepPurple,
               ),
-              SizedBox(height: 20),
-              ProjectTextfield(
-                text: "Enter Topic :",
-                controller: topicController,
-              ),
-              SizedBox(height: 20),
-              ProjectButton(
-                text: "Generate Flash Cards",
-                onPressed: isFileUploaded
-                    ? null
-                    : () {
-                        // Add your generation logic here
-                      },
-              ),
-              SizedBox(height: 20),
-              Text(
-                "OR",
-                style: TextStyle(
-                  fontSize: 30,
+            ),
+            SizedBox(height: 16),
+            ProjectTextfield(
+              text: "Enter Subject:",
+              controller: subjectController,
+            ),
+            SizedBox(height: 16),
+            ProjectTextfield(
+              text: "Enter Topic:",
+              controller: topicController,
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: isFileUploaded
+                  ? null
+                  : () {
+                      // Add your generation logic here
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurpleAccent,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                textStyle: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              SizedBox(height: 20),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    buildInputTypeButton('text'),
-                    buildInputTypeButton('pdf'),
-                    buildInputTypeButton('url'),
-                    buildInputTypeButton('image'),
-                    buildInputTypeButton('video'),
-                    buildInputTypeButton('audio'),
-                    buildInputTypeButton('ppt'),
-                  ],
-                ),
+              child: Text("Generate Flash Cards"),
+            ),
+            SizedBox(height: 20),
+            Text(
+              "OR",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.deepPurple,
               ),
-              SizedBox(height: 20),
-              buildInputTypeSection(),
-              Column(
+            ),
+            SizedBox(height: 20),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
                 children: [
-                  SizedBox(height: 20),
-                  Center(
-                    child: SizedBox(
-                      height: 400,
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      child: buildPlayfulFlashcard(
-                        imageUrl: 'https://via.placeholder.com/150',
-                        frontText: 'What is the functional group of alcohols',
-                        backNote:
-                            'This is the note on the back of the flashcard.',
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Center(
-                    child: QuizFlashcard(
-                        question: 'What is the color of sky ?',
-                        option1: "Red",
-                        option2: "Green",
-                        option3: "Yellow",
-                        correctOption: "Blue",
-                        explanation:
-                            "Sky is blue because of Rayleigh scattering."),
-                  ),
-                  SizedBox(height: 20),
+                  buildInputTypeButton('text'),
+                  buildInputTypeButton('pdf'),
+                  buildInputTypeButton('url'),
+                  buildInputTypeButton('image'),
+                  buildInputTypeButton('video'),
+                  buildInputTypeButton('audio'),
+                  buildInputTypeButton('ppt'),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -136,7 +152,7 @@ class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
 
   Widget buildInputTypeButton(String inputType) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 4.0),
       child: ElevatedButton(
         onPressed: () {
           setState(() {
@@ -147,18 +163,45 @@ class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
         child: Text(inputType.toUpperCase()),
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(8),
           ),
           elevation: 2,
           backgroundColor: selectedInputType == inputType
-              ? Pallete.primaryColor
-              : const Color.fromARGB(255, 231, 231, 231),
+              ? Colors.deepPurpleAccent
+              : Colors.grey[300],
+          foregroundColor:
+              selectedInputType == inputType ? Colors.white : Colors.black87,
         ),
       ),
     );
   }
 
-  Widget buildInputTypeSection() {
+  Widget _buildInputTypeSection() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Input Section',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.deepPurple,
+              ),
+            ),
+            SizedBox(height: 16),
+            buildInputTypeContent(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildInputTypeContent() {
     switch (selectedInputType) {
       case 'pdf':
         return buildPdfInputSection();
@@ -180,34 +223,39 @@ class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
   }
 
   Widget buildFileUploadSection(
-      String sectiontitle, String buttonText, VoidCallback onUpload) {
-    return Container(
-      width: double.infinity,
-      height: 250,
-      padding: const EdgeInsets.all(16.0),
-      decoration: inputSectionDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          sectionTitle(sectiontitle),
-          SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: isFileUploaded ? null : onUpload,
-            child: Text(buttonText),
+      String sectionTitle, String buttonText, VoidCallback onUpload) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          sectionTitle,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: isFileUploaded ? null : onUpload,
+          child: Text(buttonText),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.deepPurpleAccent,
+            foregroundColor: Colors.white,
           ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: isFileUploaded ? () {} : null,
-            child: Text('Generate Flashcards'),
+        ),
+        SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: isFileUploaded ? () {} : null,
+          child: Text('Generate Flashcards'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.deepPurple,
+            foregroundColor: Colors.white,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget buildPdfInputSection() {
     return buildFileUploadSection(
-      'PDF Input Section',
+      'PDF Input',
       'Upload PDF',
       () async {
         if (!isFileUploaded) {
@@ -226,42 +274,48 @@ class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
   }
 
   Widget buildUrlInputSection() {
-    return Container(
-      width: double.infinity,
-      height: 200,
-      padding: const EdgeInsets.all(16.0),
-      decoration: inputSectionDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          sectionTitle('URL Input Section'),
-          SizedBox(height: 10),
-          TextField(
-            decoration: InputDecoration(labelText: 'Enter URL'),
-            onSubmitted: (url) async {
-              if (await canLaunch(url)) {
-                await launch(url);
-                setState(() {
-                  isFileUploaded = true;
-                });
-              } else {
-                throw 'Could not launch $url';
-              }
-            },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'URL Input',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 10),
+        TextField(
+          decoration: InputDecoration(
+            labelText: 'Enter URL',
+            border: OutlineInputBorder(),
           ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: isFileUploaded ? () {} : null,
-            child: Text('Generate Flashcards'),
+          onSubmitted: (url) async {
+            if (await canLaunch(url)) {
+              await launch(url);
+              setState(() {
+                isFileUploaded = true;
+              });
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Could not launch $url')),
+              );
+            }
+          },
+        ),
+        SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: isFileUploaded ? () {} : null,
+          child: Text('Generate Flashcards'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.deepPurple,
+            foregroundColor: Colors.white,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget buildImageInputSection() {
     return buildFileUploadSection(
-      'Image Input Section',
+      'Image Input',
       'Upload Image',
       () async {
         if (!isFileUploaded) {
@@ -279,7 +333,7 @@ class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
 
   Widget buildVideoInputSection() {
     return buildFileUploadSection(
-      'Video Input Section',
+      'Video Input',
       'Upload Video',
       () async {
         if (!isFileUploaded) {
@@ -301,17 +355,15 @@ class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
 
   Widget buildAudioInputSection() {
     return buildFileUploadSection(
-      'Audio Input Section',
+      'Audio Input',
       isFileUploaded ? 'Stop Recording' : 'Start Recording',
       () async {
         if (!isFileUploaded) {
-          // Start recording
           await _audioRecorder.startRecorder(toFile: 'audio.aac');
           setState(() {
             isFileUploaded = true;
           });
         } else {
-          // Stop recording
           await _audioRecorder.stopRecorder();
           setState(() {
             isFileUploaded = false;
@@ -321,25 +373,9 @@ class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
     );
   }
 
-  FlutterSoundPlayer _audioPlayer = FlutterSoundPlayer();
-
-  Widget buildAudioPlaybackButton() {
-    return ElevatedButton(
-      onPressed: () async {
-        if (_audioPlayer.isPlaying) {
-          await _audioPlayer.stopPlayer();
-        } else {
-          await _audioPlayer.startPlayer(fromURI: 'audio.aac');
-        }
-        setState(() {}); // Update UI based on player state
-      },
-      child: Text(_audioPlayer.isPlaying ? 'Stop Audio' : 'Play Audio'),
-    );
-  }
-
   Widget buildPptInputSection() {
     return buildFileUploadSection(
-      'PPT Input Section',
+      'PPT Input',
       'Upload PPT',
       () async {
         if (!isFileUploaded) {
@@ -348,7 +384,6 @@ class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
             allowedExtensions: ['ppt', 'pptx'],
           );
           if (pickedFile != null) {
-            // Handle the picked PPT file here (e.g., display filename)
             setState(() {
               isFileUploaded = true;
             });
@@ -359,59 +394,130 @@ class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
   }
 
   Widget buildTextInputSection() {
-    return Container(
-      width: double.infinity,
-      height: 200,
-      padding: const EdgeInsets.all(16.0),
-      decoration: inputSectionDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          sectionTitle('Text Input Section'),
-          SizedBox(height: 10),
-          quill.QuillEditor.basic(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Text Input',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 10),
+        Container(
+          height: 200,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: quill.QuillEditor.basic(
             controller: _quillController,
             configurations: quill.QuillEditorConfigurations(
               checkBoxReadOnly: true,
             ),
           ),
-          SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              // Add text generation logic here
-            },
-            child: Text('Generate Flashcards'),
+        ),
+        SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: () {
+            // Add text generation logic here
+          },
+          child: Text('Generate Flashcards'),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.deepPurple,
+            foregroundColor: Colors.white,
           ),
-        ],
-      ),
-    );
-  }
-
-  BoxDecoration inputSectionDecoration() {
-    return BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      border: Border.all(
-        color: Colors.grey.withOpacity(0.5),
-        width: 1,
-      ),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.1),
-          blurRadius: 6,
-          spreadRadius: 2,
         ),
       ],
     );
   }
 
-  Widget sectionTitle(String title) {
-    return Text(
-      title,
-      style: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: Pallete.primaryColor,
+//   Widget _buildFlashcardExamples() {
+//     return Card(
+//       elevation: 4,
+//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+//       child: Padding(
+//         padding: const EdgeInsets.all(16.0),
+//         child: Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Text(
+//               'Flashcard Examples',
+//               style: TextStyle(
+//                 fontSize: 20,
+//                 fontWeight: FontWeight.bold,
+//                 color: Colors.deepPurple,
+//               ),
+//             ),
+//             SizedBox(height: 16),
+//             Center(
+//               child: SizedBox(
+//                 height: 200,
+//                 width: MediaQuery.of(context).size.width * 0.8,
+//                 child: buildPlayfulFlashcard(
+//                   imageUrl: 'https://via.placeholder.com/150',
+//                   frontText: 'What is the functional group of alcohols?',
+//                   backNote:
+//                       'The functional group of alcohols is -OH (hydroxyl group).',
+//                 ),
+//               ),
+//             ),
+//             SizedBox(height: 20),
+//             Center(
+//               child: SizedBox(
+//                 height: 200,
+//                 width: MediaQuery.of(context).size.width * 0.8,
+//                 child: QuizFlashcard(
+//                   question: 'What is the color of the sky?',
+//                   option1: "Red",
+//                   option2: "Green",
+//                   option3: "Yellow",
+//                   correctOption: "Blue",
+//                   explanation:
+//                       "The sky appears blue due to Rayleigh scattering of sunlight in the atmosphere.",
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+  Widget buildPlayfulFlashcard({
+    required String imageUrl,
+    required String frontText,
+    required String backNote,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.network(imageUrl, height: 80),
+          SizedBox(height: 10),
+          Text(
+            frontText,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 10),
+          Text(
+            backNote,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+          ),
+        ],
       ),
     );
   }
