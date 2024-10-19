@@ -287,32 +287,66 @@ class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
     );
   }
 
-  Widget buildAudioInputSection() {
-    return buildFileUploadSection(
-      'Audio Input Section',
-      'Start Recording',
-      () async {
-        if (!isFileUploaded) {
-          await _audioRecorder.startRecorder(toFile: 'audio.aac');
+Widget buildAudioInputSection() {
+  return buildFileUploadSection(
+    'Audio Input Section',
+    isFileUploaded ? 'Stop Recording' : 'Start Recording',
+    () async {
+      if (!isFileUploaded) {
+        // Start recording
+        await _audioRecorder.startRecorder(toFile: 'audio.aac');
+        setState(() {
+          isFileUploaded = true;
+        });
+      } else {
+        // Stop recording
+        await _audioRecorder.stopRecorder();
+        setState(() {
+          isFileUploaded = false;
+        });
+      }
+    },
+  );
+}
+
+FlutterSoundPlayer _audioPlayer = FlutterSoundPlayer();
+
+Widget buildAudioPlaybackButton() {
+  return ElevatedButton(
+    onPressed: () async {
+      if (_audioPlayer.isPlaying) {
+        await _audioPlayer.stopPlayer();
+      } else {
+        await _audioPlayer.startPlayer(fromURI: 'audio.aac');
+      }
+      setState(() {}); // Update UI based on player state
+    },
+    child: Text(_audioPlayer.isPlaying ? 'Stop Audio' : 'Play Audio'),
+  );
+}
+
+Widget buildPptInputSection() {
+  return buildFileUploadSection(
+    'PPT Input Section',
+    'Upload PPT',
+    () async {
+      if (!isFileUploaded) {
+        final pickedFile = await pickFile(
+          type: FileType.custom,
+          allowedExtensions: ['ppt', 'pptx'],
+        );
+        if (pickedFile != null) {
+          // Handle the picked PPT file here (e.g., display filename)
           setState(() {
             isFileUploaded = true;
           });
         }
-      },
-    );
-  }
+      }
+    },
+  );
+}
 
-  Widget buildPptInputSection() {
-    return buildFileUploadSection(
-      'PPT Input Section',
-      'Upload PPT',
-      () async {
-        if (!isFileUploaded) {
-          // Logic to pick and handle PPT files goes here.
-        }
-      },
-    );
-  }
+
 
   Widget buildTextInputSection() {
     return Container(
