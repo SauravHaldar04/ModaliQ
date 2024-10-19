@@ -127,11 +127,23 @@ class _StudentHomePageState extends State<StudentHomePage> {
   }
 
   Future<void> _getSyllabusUrl() async {
-    final userDoc =
-        await _firestore.collection('users').doc(_auth.currentUser!.uid).get();
-    setState(() {
-      syllabusUrl = userDoc.data()?['syllabusUrl'];
-    });
+    try {
+      final userDoc = await _firestore
+          .collection('users')
+          .doc(_auth.currentUser!.uid)
+          .get();
+      setState(() {
+        syllabusUrl = userDoc.data()?['syllabusUrl'];
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Syllabus URL retrieved successfully!')),
+      );
+    } catch (e) {
+      print("Error retrieving syllabus URL: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to retrieve syllabus URL.')),
+      );
+    }
   }
 
   Future<void> _scheduleSession(BuildContext context) async {
