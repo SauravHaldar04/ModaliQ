@@ -8,7 +8,10 @@ final class AuthSignUp extends AuthEvent {
   final String lastName;
   final String email;
   final String password;
-  AuthSignUp(this.email, this.password,  this.firstName, this.lastName,this.middleName);
+  final String studentGrade;
+  final List<String> studentSubjects;
+  AuthSignUp(this.email, this.password, this.firstName, this.lastName,
+      this.middleName, this.studentGrade, this.studentSubjects);
 }
 
 final class AuthLogIn extends AuthEvent {
@@ -17,21 +20,13 @@ final class AuthLogIn extends AuthEvent {
   AuthLogIn(this.email, this.password);
 }
 
-final class AuthEmailVerification extends AuthEvent {
+final class AuthEmailVerification extends AuthEvent {}
 
-}
+final class AuthGoogleSignIn extends AuthEvent {}
 
-final class AuthGoogleSignIn extends AuthEvent {
+final class AuthIsUserLoggedIn extends AuthEvent {}
 
-}
-
-final class AuthIsUserLoggedIn extends AuthEvent {
-
-}
-
-final class AuthIsUserEmailVerified extends AuthEvent {
-
-}
+final class AuthIsUserEmailVerified extends AuthEvent {}
 
 class AuthEmailVerificationCompleted extends AuthEvent {}
 
@@ -39,4 +34,3 @@ class AuthEmailVerificationFailed extends AuthEvent {
   final String message;
   AuthEmailVerificationFailed(this.message);
 }
-

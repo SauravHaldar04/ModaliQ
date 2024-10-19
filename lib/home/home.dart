@@ -1,4 +1,5 @@
 import 'package:datahack/flashcards/create_flashcard_page.dart';
+import 'package:datahack/home/create_ai_quiz.dart';
 import 'package:datahack/home/student_homepage.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +16,7 @@ class _HomePageState extends State<HomePage> {
   final List<Widget> _pages = [
     StudentHomePage(),
     CreateFlashcardPage(),
-    QuizPage(),
+    CreateAIQuiz(),
     ContestPage(),
     ChatHelp(),
   ];

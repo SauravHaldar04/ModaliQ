@@ -1,4 +1,3 @@
-
 import 'package:datahack/core/theme/app_pallete.dart';
 import 'package:datahack/core/utils/loader.dart';
 import 'package:datahack/core/utils/snackbar.dart';
@@ -22,6 +21,21 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController cpasswordController = TextEditingController();
+  final TextEditingController gradeController = TextEditingController();
+  List<String> selectedSubjects = [];
+
+  @override
+  void dispose() {
+    firstNameController.dispose();
+    middleNameController.dispose();
+    lastNameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    cpasswordController.dispose();
+    gradeController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,9 +62,7 @@ class _SignUpPageState extends State<SignUpPage> {
                   ],
                 ),
               ),
-              const SizedBox(
-                height: 30,
-              ),
+              const SizedBox(height: 30),
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: BlocConsumer<AuthBloc, AuthState>(
@@ -95,43 +107,126 @@ class _SignUpPageState extends State<SignUpPage> {
                                 controller: firstNameController,
                                 text: 'First Name',
                               ),
-                              const SizedBox(
-                                height: 20,
-                              ),
+                              const SizedBox(height: 20),
                               AuthTextfield(
                                 controller: middleNameController,
                                 text: 'Middle Name',
                               ),
-                              const SizedBox(
-                                height: 20,
-                              ),
+                              const SizedBox(height: 20),
                               AuthTextfield(
                                 controller: lastNameController,
                                 text: 'Last Name',
                               ),
-                              const SizedBox(
-                                height: 20,
-                              ),
+                              const SizedBox(height: 20),
                               AuthTextfield(
                                 controller: emailController,
                                 text: 'Email',
                                 keyboardType: TextInputType.emailAddress,
                               ),
-                              const SizedBox(
-                                height: 20,
-                              ),
+                              const SizedBox(height: 20),
                               AuthTextfield(
                                 controller: passwordController,
                                 text: 'Password',
                                 isPassword: true,
                               ),
-                              const SizedBox(
-                                height: 20,
-                              ),
+                              const SizedBox(height: 20),
                               AuthTextfield(
                                 controller: cpasswordController,
                                 text: 'Confirm Password',
                                 isPassword: true,
+                              ),
+                              DropdownButtonFormField<String>(
+                                value: gradeController.text.isEmpty
+                                    ? null
+                                    : gradeController.text,
+                                decoration: InputDecoration(
+                                  labelText: 'Grade',
+                                  border: OutlineInputBorder(),
+                                ),
+                                items: ['11th', '12th'].map((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    gradeController.text = newValue!;
+                                  });
+                                },
+                              ),
+                              const SizedBox(height: 20),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Select Subjects:'),
+                                  CheckboxListTile(
+                                    title: Text('Physics'),
+                                    value: selectedSubjects.contains('Physics'),
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        if (value!) {
+                                          selectedSubjects.add('Physics');
+                                        } else {
+                                          selectedSubjects.remove('Physics');
+                                        }
+                                      });
+                                    },
+                                  ),
+                                  CheckboxListTile(
+                                    title: Text('Chemistry'),
+                                    value:
+                                        selectedSubjects.contains('Chemistry'),
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        if (value!) {
+                                          selectedSubjects.add('Chemistry');
+                                        } else {
+                                          selectedSubjects.remove('Chemistry');
+                                        }
+                                      });
+                                    },
+                                  ),
+                                  CheckboxListTile(
+                                    title: Text('Maths'),
+                                    value: selectedSubjects.contains('Maths'),
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        if (value!) {
+                                          selectedSubjects.add('Maths');
+                                        } else {
+                                          selectedSubjects.remove('Maths');
+                                        }
+                                      });
+                                    },
+                                  ),
+                                  CheckboxListTile(
+                                    title: Text('Biology'),
+                                    value: selectedSubjects.contains('Biology'),
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        if (value!) {
+                                          selectedSubjects.add('Biology');
+                                        } else {
+                                          selectedSubjects.remove('Biology');
+                                        }
+                                      });
+                                    },
+                                  ),
+                                  CheckboxListTile(
+                                    title: Text('English'),
+                                    value: selectedSubjects.contains('English'),
+                                    onChanged: (bool? value) {
+                                      setState(() {
+                                        if (value!) {
+                                          selectedSubjects.add('English');
+                                        } else {
+                                          selectedSubjects.remove('English');
+                                        }
+                                      });
+                                    },
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -141,18 +236,28 @@ class _SignUpPageState extends State<SignUpPage> {
                             AuthButton(
                               text: 'Sign Up',
                               onPressed: () {
+                                if (gradeController.text.isEmpty) {
+                                  showSnackbar(
+                                      context, "Please select a grade");
+                                  return;
+                                }
+                                if (selectedSubjects.isEmpty) {
+                                  showSnackbar(context,
+                                      "Please select at least one subject");
+                                  return;
+                                }
                                 context.read<AuthBloc>().add(AuthSignUp(
                                       emailController.text.trim(),
                                       passwordController.text.trim(),
                                       firstNameController.text.trim(),
                                       lastNameController.text.trim(),
                                       middleNameController.text.trim(),
+                                      gradeController.text,
+                                      selectedSubjects,
                                     ));
                               },
                             ),
-                            const SizedBox(
-                              height: 20,
-                            ),
+                            const SizedBox(height: 20),
                             RichText(
                               textAlign: TextAlign.center,
                               text: const TextSpan(
@@ -176,9 +281,7 @@ class _SignUpPageState extends State<SignUpPage> {
                                             fontWeight: FontWeight.bold)),
                                   ]),
                             ),
-                            const SizedBox(
-                              height: 20,
-                            ),
+                            const SizedBox(height: 20),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -195,17 +298,13 @@ class _SignUpPageState extends State<SignUpPage> {
                                 ),
                               ],
                             ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            AuthButton(
-                              text: 'Continue with Google',
-                              onPressed: () {
-                                context
-                                    .read<AuthBloc>()
-                                    .add(AuthGoogleSignIn());
-                              },
-                            ),
+                            const SizedBox(height: 20),
+                            // AuthButton(
+                            //   text: 'Continue with Google',
+                            //   // onPressed: () {
+                            //   //   context.read<AuthBloc>().add(AuthGoogle SignIn()),
+                            //   // },
+                            // ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
