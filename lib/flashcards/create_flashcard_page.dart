@@ -52,84 +52,99 @@ class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
         ),
         backgroundColor: Colors.deepPurpleAccent,
       ),
-      body: Padding(
+      body: Container(
+        color: Colors.grey[100],
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildInputCard(),
+                SizedBox(height: 20),
+                _buildInputTypeSection(),
+                SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputCard() {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              ProjectTextfield(
-                text: "Enter Subject:",
-                controller: subjectController,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Flashcard Details',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.deepPurple,
               ),
-              SizedBox(height: 20),
-              ProjectTextfield(
-                text: "Enter Topic :",
-                controller: topicController,
-              ),
-              SizedBox(height: 20),
-              ProjectButton(
-                text: "Generate Flash Cards",
-                onPressed: isFileUploaded
-                    ? null
-                    : () {
-                        // Add your generation logic here
-                      },
-              ),
-              SizedBox(height: 20),
-              Text(
-                "OR",
-                style: TextStyle(
-                  fontSize: 30,
+            ),
+            SizedBox(height: 16),
+            ProjectTextfield(
+              text: "Enter Subject:",
+              controller: subjectController,
+            ),
+            SizedBox(height: 16),
+            ProjectTextfield(
+              text: "Enter Topic:",
+              controller: topicController,
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: isFileUploaded
+                  ? null
+                  : () {
+                      // Add your generation logic here
+                    },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.deepPurpleAccent,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                textStyle: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              SizedBox(height: 20),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    buildInputTypeButton('text'),
-                    buildInputTypeButton('pdf'),
-                    buildInputTypeButton('url'),
-                    buildInputTypeButton('image'),
-                    buildInputTypeButton('video'),
-                    buildInputTypeButton('audio'),
-                    buildInputTypeButton('ppt'),
-                  ],
-                ),
+              child: Text("Generate Flash Cards"),
+            ),
+            SizedBox(height: 20),
+            Text(
+              "OR",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.deepPurple,
               ),
-              SizedBox(height: 20),
-              buildInputTypeSection(),
-              Column(
+            ),
+            SizedBox(height: 20),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
                 children: [
-                  SizedBox(height: 20),
-                  Center(
-                    child: SizedBox(
-                      height: 400,
-                      width: MediaQuery.of(context).size.width * 0.8,
-                      child: buildPlayfulFlashcard(
-                        imageUrl: 'https://via.placeholder.com/150',
-                        frontText: 'What is the functional group of alcohols',
-                        backNote:
-                            'This is the note on the back of the flashcard.',
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  // Center(
-                  //   child: QuizFlashcard(
-                  //       question: 'What is the color of sky ?',
-                  //       option1: "Red",
-                  //       option2: "Green",
-                  //       option3: "Yellow",
-                  //       correctOption: "Blue",
-                  //       explanation:
-                  //           "Sky is blue because of Rayleigh scattering."),
-                  // ),
-                  // SizedBox(height: 20),
+                  buildInputTypeButton('text'),
+                  buildInputTypeButton('pdf'),
+                  buildInputTypeButton('url'),
+                  buildInputTypeButton('image'),
+                  buildInputTypeButton('video'),
+                  buildInputTypeButton('audio'),
+                  buildInputTypeButton('ppt'),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
