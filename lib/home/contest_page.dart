@@ -184,7 +184,7 @@ class ContestPage extends StatelessWidget {
                     itemCount: users.length,
                     itemBuilder: (context, index) {
                       final user = users[index];
-                      final name = "${user['firstName']} ${user["lastName"]}" ??
+                      final name = "${user["firstName"]} ${user['lastName']}" ??
                           'Anonymous';
                       final points = user['points'] ?? 0;
                       final isTopper = index == 0;
