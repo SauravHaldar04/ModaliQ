@@ -3,7 +3,7 @@ import 'package:datahack/resources/database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class CreateAIQuiz extends StatefulWidget {
@@ -20,28 +20,11 @@ class _CreateAIQuizState extends State<CreateAIQuiz> {
   late DatabaseService databaseService;
   bool isLoading = false;
   String? quizId;
-  late WebSocketChannel channel;
 
   @override
   void initState() {
     super.initState();
     databaseService = DatabaseService(uid: auth.currentUser!.uid);
-    connectWebSocket();
-  }
-
-  void connectWebSocket() {
-    channel = WebSocketChannel.connect(Uri.parse('ws://localhost:8765'));
-    channel.stream.listen((message) {
-      final data = json.decode(message);
-      handleServerMessage(data);
-    });
-  }
-
-  void handleServerMessage(Map<String, dynamic> data) {
-    if (data.containsKey('message')) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(data['message'])));
-    }
   }
 
   List<String> grades = ['11th', '12th'];
@@ -53,7 +36,32 @@ class _CreateAIQuizState extends State<CreateAIQuiz> {
     'English'
   ];
 
-  createQuiz() {
+  Future<void> startQuiz() async {
+    print('grade: $grade, subject: $subject, topic: $topic');
+    final response = await http.post(
+      Uri.parse('https://65ab-14-139-125-227.ngrok-free.app/start_quiz'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, dynamic>{
+        'grade': grade!,
+        'subject': subject!,
+        'topic': topic!,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      // Quiz started successfully
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Quiz started successfully!')));
+    } else {
+      // If the server did not return a 200 OK response,
+      // then throw an exception.
+      throw Exception('Failed to start quiz');
+    }
+  }
+
+  createQuiz() async {
     quizId = Uuid().v1();
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -67,18 +75,12 @@ class _CreateAIQuizState extends State<CreateAIQuiz> {
         "id": quizId!,
       };
 
-      databaseService.addQuizData(quizData, quizId!).then((value) {
+      try {
+        await databaseService.addQuizData(quizData, quizId!);
+        await startQuiz(); // Send POST request to start the quiz
         setState(() {
           isLoading = false;
         });
-
-        // Send quiz parameters to the server
-        channel.sink.add(json.encode({
-          'grade': grade,
-          'subject': subject,
-          'topic': topic,
-        }));
-
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -87,22 +89,17 @@ class _CreateAIQuizState extends State<CreateAIQuiz> {
                     grade: grade!,
                     subject: subject!,
                     topic: topic!,
-                    // channel: channel,
                   )),
         );
-      }).catchError((error) {
+      } catch (error) {
         print('Error in createQuiz: $error');
         setState(() {
           isLoading = false;
         });
-      });
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Failed to create quiz')));
+      }
     }
-  }
-
-  @override
-  void dispose() {
-    channel.sink.close();
-    super.dispose();
   }
 
   @override
@@ -235,28 +232,15 @@ class _CreateAIQuizState extends State<CreateAIQuiz> {
 
   Widget _buildGenerateQuizButton() {
     return ElevatedButton(
-      onPressed: () {
-        if (_formKey.currentState!.validate()) {
-          createQuiz();
-        }
-      },
+      onPressed: createQuiz,
+      child: Text('Generate Quiz'),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.deepPurple,
-        padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+        backgroundColor: Colors.deepPurpleAccent,
+        foregroundColor: Colors.white,
+        elevation: 5,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(20),
         ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.play_arrow, color: Colors.white),
-          SizedBox(width: 8),
-          Text(
-            'Generate Quiz',
-            style: TextStyle(fontSize: 18, color: Colors.white),
-          ),
-        ],
       ),
     );
   }
