@@ -3,6 +3,8 @@ import 'package:datahack/resources/database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'dart:convert';
 
 class CreateAIQuiz extends StatefulWidget {
   @override
@@ -18,11 +20,28 @@ class _CreateAIQuizState extends State<CreateAIQuiz> {
   late DatabaseService databaseService;
   bool isLoading = false;
   String? quizId;
+  late WebSocketChannel channel;
 
   @override
   void initState() {
     super.initState();
     databaseService = DatabaseService(uid: auth.currentUser!.uid);
+    connectWebSocket();
+  }
+
+  void connectWebSocket() {
+    channel = WebSocketChannel.connect(Uri.parse('ws://localhost:8765'));
+    channel.stream.listen((message) {
+      final data = json.decode(message);
+      handleServerMessage(data);
+    });
+  }
+
+  void handleServerMessage(Map<String, dynamic> data) {
+    if (data.containsKey('message')) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(data['message'])));
+    }
   }
 
   List<String> grades = ['11th', '12th'];
@@ -52,14 +71,24 @@ class _CreateAIQuizState extends State<CreateAIQuiz> {
         setState(() {
           isLoading = false;
         });
+
+        // Send quiz parameters to the server
+        channel.sink.add(json.encode({
+          'grade': grade,
+          'subject': subject,
+          'topic': topic,
+        }));
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
               builder: (context) => AIQuizInputPage(
-                  quizId: quizId!,
-                  grade: grade!,
-                  subject: subject!,
-                  topic: topic!)),
+                    quizId: quizId!,
+                    grade: grade!,
+                    subject: subject!,
+                    topic: topic!,
+                    // channel: channel,
+                  )),
         );
       }).catchError((error) {
         print('Error in createQuiz: $error');
@@ -68,6 +97,12 @@ class _CreateAIQuizState extends State<CreateAIQuiz> {
         });
       });
     }
+  }
+
+  @override
+  void dispose() {
+    channel.sink.close();
+    super.dispose();
   }
 
   @override
