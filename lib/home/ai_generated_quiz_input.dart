@@ -35,7 +35,8 @@ class _AIQuizInputPageState extends State<AIQuizInputPage> {
   }
 
   void connectWebSocket() {
-    channel = WebSocketChannel.connect(Uri.parse('ws://localhost:8765'));
+    channel = WebSocketChannel.connect(
+        Uri.parse('https://65ab-14-139-125-227.ngrok-free.app'));
     channel.stream.listen((message) {
       final data = json.decode(message);
       handleServerMessage(data);
