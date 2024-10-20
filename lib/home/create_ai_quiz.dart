@@ -39,7 +39,8 @@ class _CreateAIQuizState extends State<CreateAIQuiz> {
   Future<void> startQuiz() async {
     print('grade: $grade, subject: $subject, topic: $topic');
     final response = await http.post(
-      Uri.parse('https://65ab-14-139-125-227.ngrok-free.app/start_quiz'),
+      Uri.parse(
+          'https://e336-14-139-125-227.ngrok-free.app/generate_questions'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -51,6 +52,7 @@ class _CreateAIQuizState extends State<CreateAIQuiz> {
     );
 
     if (response.statusCode == 200) {
+      print(response.body);
       // Quiz started successfully
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Quiz started successfully!')));
