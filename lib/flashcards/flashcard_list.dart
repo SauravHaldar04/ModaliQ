@@ -1,3 +1,4 @@
+import 'package:datahack/flashcards/view_flashcards_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_flip_card/flutter_flip_card.dart';
 import 'package:datahack/core/theme/app_pallete.dart';
@@ -18,22 +19,27 @@ class _PlayfulFlashcardPageState extends State<PlayfulFlashcardPage> {
       "question": "What is Flutter?",
       "answer":
           "Flutter is an open-source UI software development toolkit by Google.",
-      "imageUrl": "https://link.to/flutter/image.png"
+      "imageUrl":
+          "https://images.unsplash.com/photo-1728985630341-075aa9277eda?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw3fHx8ZW58MHx8fHx8",
+      "youtubeVideoId": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     },
     {
       "question": "What is a StatefulWidget?",
       "answer": "A widget that has mutable state.",
-      "imageUrl": "https://link.to/statefulwidget/image.png"
+      "imageUrl": "https://link.to/statefulwidget/image.png",
+      "youtubeVideoId": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     },
     {
       "question": "What is Dart?",
       "answer": "Dart is the programming language used to write Flutter apps.",
-      "imageUrl": "https://link.to/dart/image.png"
+      "imageUrl": "https://link.to/dart/image.png",
+      "youtubeVideoId": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     },
     {
       "question": "What is the purpose of the setState() method?",
       "answer": "It notifies the framework to rebuild the widget.",
-      "imageUrl": "https://link.to/setstate/image.png"
+      "imageUrl": "https://link.to/setstate/image.png",
+      "youtubeVideoId": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     },
   ];
 
@@ -78,6 +84,7 @@ class _PlayfulFlashcardPageState extends State<PlayfulFlashcardPage> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Center(
                 child: buildPlayfulFlashcard(
+                  youtubeVideoId: flashcards[currentIndex]["youtubeVideoId"]!,
                   imageUrl: flashcards[currentIndex]["imageUrl"]!,
                   frontText: flashcards[currentIndex]["question"]!,
                   backNote: flashcards[currentIndex]["answer"]!,
@@ -126,88 +133,4 @@ class _PlayfulFlashcardPageState extends State<PlayfulFlashcardPage> {
   }
 
   // Build playful flashcard UI with gesture flip and playful colors
-  Widget buildPlayfulFlashcard({
-    required String imageUrl,
-    required String frontText,
-    required String backNote,
-  }) {
-    return GestureFlipCard(
-      frontWidget: Container(
-        padding: EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 228, 247, 255).withOpacity(0.3),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Pallete.primaryColor, width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.blueAccent.withOpacity(0.3),
-              blurRadius: 10,
-              spreadRadius: 2,
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ClipOval(
-              child: Image.network(
-                imageUrl,
-                height: 120,
-                width: 120,
-                fit: BoxFit.cover,
-              ),
-            ),
-            SizedBox(height: 15),
-            Text(
-              frontText,
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: const Color.fromARGB(255, 58, 127, 183),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-      backWidget: Container(
-        padding: EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 233, 205, 255).withOpacity(0.3),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-              color: const Color.fromARGB(255, 244, 172, 255), width: 2),
-        ),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                backNote,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.normal,
-                  color: Colors.black87,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  // Add your button action here
-                },
-                child: Text('Got It!'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }

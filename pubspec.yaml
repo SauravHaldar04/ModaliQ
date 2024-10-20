@@ -63,6 +63,8 @@ dependencies:
   dotted_border: ^2.1.0
   flutter_svg: ^2.0.10+1
   font_awesome_flutter: ^10.7.0
+  youtube_player_flutter: ^9.1.1
+  webview_flutter: ^4.10.0
 
 
 dev_dependencies:
