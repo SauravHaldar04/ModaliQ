@@ -61,7 +61,7 @@ class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
               children: [
                 _buildInputCard(),
                 SizedBox(height: 20),
-                _buildInputTypeSection(),
+                buildInputTypeSection(),
                 SizedBox(height: 20),
               ],
             ),
