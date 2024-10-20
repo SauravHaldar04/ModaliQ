@@ -84,6 +84,8 @@ class _PlayfulFlashcardPageState extends State<PlayfulFlashcardPage> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Center(
                 child: buildPlayfulFlashcard(
+                  subject: widget.subject,
+                  topic: 'Flutter',
                   youtubeVideoId: flashcards[currentIndex]["youtubeVideoId"]!,
                   imageUrl: flashcards[currentIndex]["imageUrl"]!,
                   frontText: flashcards[currentIndex]["question"]!,

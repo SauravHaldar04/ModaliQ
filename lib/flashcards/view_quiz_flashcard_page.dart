@@ -13,7 +13,7 @@ class QuizFlashcard extends StatefulWidget {
   final String correctOption;
   final String explanation;
   final VoidCallback onSubmitted;
-// User's last name
+  // User's last name
 
   const QuizFlashcard({
     Key? key,
@@ -37,8 +37,6 @@ class _QuizFlashcardState extends State<QuizFlashcard> {
   int _remainingTime = 600; // 10 minutes = 600 seconds
   int _elapsedSeconds = 0;
   Stopwatch _stopwatch = Stopwatch();
-  FirebaseFirestore firestore = FirebaseFirestore.instance;
-  FirebaseAuth auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -82,31 +80,51 @@ class _QuizFlashcardState extends State<QuizFlashcard> {
   }
 
   void _calculatePointsAndSave() async {
-    int points = _calculatePoints(
-        selectedOption == widget.correctOption, _elapsedSeconds);
-    final firstName = await firestore
-        .collection('users')
-        .doc(auth.currentUser!.uid)
-        .get()
-        .then((value) => value.data()!['firstName']);
-    final lastName = await firestore
-        .collection('users')
-        .doc(auth.currentUser!.uid)
-        .get()
-        .then((value) => value.data()!['lastName']);
-    await firestore.collection('users').doc(auth.currentUser!.uid).update({
-      'points': FieldValue.increment(points),
-    });
-    // Save to Firestore
-    await FirebaseFirestore.instance.collection('contestTime').add({
-      'firstName': firstName,
-      'lastName': lastName,
-      'question': widget.question,
-      'timeTaken': _elapsedSeconds,
-      'points': points,
-      'correct': selectedOption == widget.correctOption,
-      'timestamp': FieldValue.serverTimestamp(),
-    });
+    try {
+      // Calculate points based on answer correctness and elapsed time
+      int points = _calculatePoints(
+          selectedOption == widget.correctOption, _elapsedSeconds);
+
+      // Get the current user's ID
+      final userId = FirebaseAuth.instance.currentUser!.uid;
+
+      // Fetch the user's first name and last name in a single query
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      // Check if user data exists and extract firstName and lastName
+      if (userDoc.exists) {
+        final userData = userDoc.data();
+        final firstName = userData?['firstName'] ?? 'Unknown';
+        final lastName = userData?['lastName'] ?? 'Unknown';
+
+        // Update the user's points in the users collection incrementally
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .update({
+          'points': FieldValue.increment(points),
+        });
+
+        // Save the contest result to the contestTime collection
+        await FirebaseFirestore.instance.collection('contestTime').add({
+          'firstName': firstName,
+          'lastName': lastName,
+          'userId': userId,
+          'question': widget.question,
+          'timeTaken': _elapsedSeconds,
+          'points': points,
+          'correct': selectedOption == widget.correctOption,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      } else {
+        print('User data does not exist.');
+      }
+    } catch (e) {
+      print('Error saving contest result: $e');
+    }
   }
 
   int _calculatePoints(bool isCorrect, int timeTaken) {
@@ -208,10 +226,7 @@ class _QuizFlashcardState extends State<QuizFlashcard> {
           _buildOptions(),
           SizedBox(height: 15),
           ElevatedButton(
-            onPressed: () {
-              widget.onSubmitted();
-              selectedOption != null ? _submitAnswer : null;
-            },
+            onPressed: selectedOption != null ? _submitAnswer : null,
             child: Text(
               'Submit',
               style: TextStyle(color: Colors.white),
