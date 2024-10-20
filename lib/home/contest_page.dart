@@ -1,5 +1,6 @@
-import 'package:datahack/home/contest_quiz.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:datahack/home/contest_quiz.dart';
 
 class ContestPage extends StatelessWidget {
   @override
@@ -16,9 +17,7 @@ class ContestPage extends StatelessWidget {
           children: [
             // Contest Quiz Card
             _buildContestQuizCard(context),
-
             SizedBox(height: 30),
-
             // Leaderboard Section
             _buildLeaderboardSection(),
           ],
@@ -31,7 +30,9 @@ class ContestPage extends StatelessWidget {
   Widget _buildContestQuizCard(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Navigate to quiz page (Not implemented here)
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          return QuizPage();
+        }));
       },
       child: Container(
         padding: EdgeInsets.all(20),
@@ -51,7 +52,6 @@ class ContestPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Card Title
             SizedBox(
               width: double.infinity,
               child: Row(
@@ -70,15 +70,11 @@ class ContestPage extends StatelessWidget {
               ),
             ),
             SizedBox(height: 10),
-
-            // Description
             Text(
               'Test your knowledge and compete with others!',
               style: TextStyle(fontSize: 16, color: Colors.black54),
             ),
             SizedBox(height: 10),
-
-            // Timer Section
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -105,8 +101,6 @@ class ContestPage extends StatelessWidget {
               ],
             ),
             SizedBox(height: 20),
-
-            // Call to Action Button
             ElevatedButton(
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -151,7 +145,6 @@ class ContestPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Leaderboard Title
             Row(
               children: [
                 Icon(Icons.leaderboard, color: Colors.blueAccent, size: 30),
@@ -167,17 +160,39 @@ class ContestPage extends StatelessWidget {
               ],
             ),
             SizedBox(height: 20),
-
-            // Leaderboard List
+            // Fetch and display leaderboard data from Firestore
             Expanded(
-              child: ListView(
-                children: [
-                  _buildLeaderboardTile('Alice Johnson', 90, true),
-                  _buildLeaderboardTile('Bob Smith', 85, false),
-                  _buildLeaderboardTile('Charlie Lee', 80, false),
-                  _buildLeaderboardTile('Diana Evans', 75, false),
-                  _buildLeaderboardTile('Eve Adams', 70, false),
-                ],
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('users')
+                    .where('points', isGreaterThan: 0)
+                    .orderBy('points', descending: true)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return Center(
+                        child: Text('No leaderboard data available.'));
+                  }
+
+                  final users = snapshot.data!.docs;
+
+                  return ListView.builder(
+                    itemCount: users.length,
+                    itemBuilder: (context, index) {
+                      final user = users[index];
+                      final name = "${user['firstName']} ${user["lastName"]}" ??
+                          'Anonymous';
+                      final points = user['points'] ?? 0;
+                      final isTopper = index == 0;
+
+                      return _buildLeaderboardTile(name, points, isTopper);
+                    },
+                  );
+                },
               ),
             ),
           ],
