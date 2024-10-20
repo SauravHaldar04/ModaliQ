@@ -63,6 +63,7 @@ dependencies:
   dotted_border: ^2.1.0
   flutter_svg: ^2.0.10+1
   font_awesome_flutter: ^10.7.0
+  web_socket_channel: ^3.0.1
 
 
 dev_dependencies:

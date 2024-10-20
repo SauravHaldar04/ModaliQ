@@ -2,7 +2,7 @@ import 'package:datahack/global/global_var.dart';
 import 'package:datahack/home/ai_generated_page.dart';
 import 'package:datahack/resources/database.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:web_socket_channel/web_socket_channel.dart';
 import 'dart:convert';
 
 class AIQuizInputPage extends StatefulWidget {
@@ -25,15 +25,43 @@ class AIQuizInputPage extends StatefulWidget {
 
 class _AIQuizInputPageState extends State<AIQuizInputPage> {
   DatabaseService databaseService = DatabaseService();
+  late WebSocketChannel channel;
+  List<Map<String, dynamic>> questions = [];
 
-  Future<void> uploadQuizData(String question, String option1, String option2,
-      String option3, String option4) async {
+  @override
+  void initState() {
+    super.initState();
+    connectWebSocket();
+  }
+
+  void connectWebSocket() {
+    channel = WebSocketChannel.connect(Uri.parse('ws://localhost:8765'));
+    channel.stream.listen((message) {
+      final data = json.decode(message);
+      handleServerMessage(data);
+    });
+  }
+
+  void handleServerMessage(Map<String, dynamic> data) {
+    if (data.containsKey('question')) {
+      setState(() {
+        questions.add(data);
+      });
+      uploadQuizData(data);
+    } else if (data.containsKey('message')) {
+      // Handle other messages (e.g., "Quiz finished!")
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(data['message'])));
+    }
+  }
+
+  Future<void> uploadQuizData(Map<String, dynamic> questionData) async {
     Map<String, String> questionMap = {
-      "question": question,
-      "option1": option1,
-      "option2": option2,
-      "option3": option3,
-      "option4": option4
+      "question": questionData['question'],
+      "option1": questionData['options'][0],
+      "option2": questionData['options'][1],
+      "option3": questionData['options'][2],
+      "option4": questionData['options'][3],
     };
 
     try {
@@ -41,6 +69,12 @@ class _AIQuizInputPageState extends State<AIQuizInputPage> {
     } catch (e) {
       print(e);
     }
+  }
+
+  @override
+  void dispose() {
+    channel.sink.close();
+    super.dispose();
   }
 
   @override
@@ -125,32 +159,19 @@ class _AIQuizInputPageState extends State<AIQuizInputPage> {
 
   Widget _buildPlayQuizButton() {
     return ElevatedButton(
-      onPressed: () async {
-        final response = await http.post(
-          Uri.parse('${GlobalVariables.Url}/quiz'),
-          body: json.encode(<String, dynamic>{
-            'grade': widget.grade,
-            'subject': widget.subject,
-            'topic': widget.topic,
-          }),
-          headers: <String, String>{'Content-Type': 'application/json'},
-        );
-        if (response.statusCode == 200) {
-          print(jsonDecode(response.body));
-          uploadQuizData(
-            jsonDecode(response.body)[0]['question'],
-            jsonDecode(response.body)[0]['correct_answer'],
-            jsonDecode(response.body)[0]["incorrect_answers"][0],
-            jsonDecode(response.body)[0]["incorrect_answers"][1],
-            jsonDecode(response.body)[0]["incorrect_answers"][2],
-          );
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AIQuizPlay()),
-          );
-        } else {
-          print("Error");
-        }
+      onPressed: () {
+        // Send quiz parameters to the server
+        channel.sink.add(json.encode({
+          'grade': widget.grade,
+          'subject': widget.subject,
+          'topic': widget.topic,
+        }));
+
+        // Navigate to the quiz page
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => AIQuizPlay(channel: channel, questions: questions)),
+        // );
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.deepPurple,
