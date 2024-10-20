@@ -6,7 +6,7 @@ import 'package:datahack/core/utils/view_pdf.dart';
 import 'package:datahack/core/widgets/project_button.dart';
 import 'package:datahack/core/widgets/project_textfield.dart';
 import 'package:datahack/flashcards/view_flashcards_page.dart';
-import 'package:datahack/flashcards/view_quiz_flashcard_page.dart';
+import 'package:datahack/flashcards/view_contest_quiz_flashcard_page.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -357,18 +357,21 @@ class _CreateFlashcardPageState extends State<CreateFlashcardPage> {
   Widget buildAudioInputSection() {
     return buildFileUploadSection(
       'Audio Input',
-      isFileUploaded ? 'Stop Recording' : 'Start Recording',
+      'Upload Audio File',
       () async {
         if (!isFileUploaded) {
-          await _audioRecorder.startRecorder(toFile: 'audio.aac');
-          setState(() {
-            isFileUploaded = true;
-          });
-        } else {
-          await _audioRecorder.stopRecorder();
-          setState(() {
-            isFileUploaded = false;
-          });
+          final result = await FilePicker.platform.pickFiles(
+            type: FileType.custom,
+            allowedExtensions: ['mp3', 'wav', 'aac'],
+          );
+          if (result != null && result.files.isNotEmpty) {
+            setState(() {
+              isFileUploaded = true;
+            });
+            // Here, you can process the audio file if needed
+            final audioFile = File(result.files.single.path!);
+            print('Selected audio file path: ${audioFile.path}');
+          }
         }
       },
     );

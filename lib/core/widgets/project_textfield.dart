@@ -1,4 +1,3 @@
-
 import 'package:datahack/core/theme/theme.dart';
 import 'package:flutter/material.dart';
 
@@ -29,7 +28,6 @@ class _ProjectTextfieldState extends State<ProjectTextfield> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-
       style: const TextStyle(
         color: Colors.black,
       ),
@@ -45,6 +43,11 @@ class _ProjectTextfieldState extends State<ProjectTextfield> {
                 borderRadius: BorderRadius.circular(10),
               )
             : null,
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(
+              color: const Color.fromARGB(255, 119, 39, 176), width: 2),
+          borderRadius: BorderRadius.circular(10),
+        ),
         hintText: widget.text,
         hintStyle: const TextStyle(
           color: Colors.grey,

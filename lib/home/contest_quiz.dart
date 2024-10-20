@@ -1,5 +1,5 @@
 import 'package:datahack/core/utils/list_of_contest_questions.dart';
-import 'package:datahack/flashcards/view_quiz_flashcard_page.dart';
+import 'package:datahack/flashcards/view_contest_quiz_flashcard_page.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 

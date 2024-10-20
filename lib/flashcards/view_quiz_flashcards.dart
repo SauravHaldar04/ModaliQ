@@ -1,49 +1,34 @@
+import 'package:datahack/flashcards/view_contest_quiz_flashcard_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_flip_card/flutter_flip_card.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_flip_card/flutter_flip_card.dart';
 import 'dart:async';
 
-class QuizFlashcard extends StatefulWidget {
-  final String question;
-  final String option1;
-  final String option2;
-  final String option3;
-  final String correctOption;
-  final String explanation;
-  final VoidCallback onSubmitted;
-  // User's last name
+class QuizTestPage extends StatefulWidget {
+  final List<QuizFlashcard> quizFlashcards;
 
-  const QuizFlashcard({
-    Key? key,
-    required this.onSubmitted,
-    required this.question,
-    required this.option1,
-    required this.option2,
-    required this.option3,
-    required this.correctOption,
-    required this.explanation,
-  }) : super(key: key);
+  const QuizTestPage({Key? key, required this.quizFlashcards})
+      : super(key: key);
 
   @override
-  _QuizFlashcardState createState() => _QuizFlashcardState();
+  _QuizTestPageState createState() => _QuizTestPageState();
 }
 
-class _QuizFlashcardState extends State<QuizFlashcard> {
-  String? selectedOption;
-  late FlipCardController _controller;
+class _QuizTestPageState extends State<QuizTestPage> {
+  int currentQuestionIndex = 0;
   late Timer _timer;
   int _remainingTime = 600; // 10 minutes = 600 seconds
-  int _elapsedSeconds = 0;
-  Stopwatch _stopwatch = Stopwatch();
+  String? selectedOption;
+  late FlipCardController _controller;
+  bool isAnswerSubmitted = false;
 
   @override
   void initState() {
     super.initState();
     _controller = FlipCardController();
     _startTimer();
-    _startStopwatch();
   }
 
   void _startTimer() {
@@ -54,41 +39,32 @@ class _QuizFlashcardState extends State<QuizFlashcard> {
         });
       } else {
         _timer.cancel();
-        _stopwatch.stop();
         _submitAnswer();
       }
     });
   }
 
-  void _startStopwatch() {
-    _stopwatch.start();
-  }
-
   void _stopTimer() {
     _timer.cancel();
-    _stopwatch.stop();
-    _elapsedSeconds = _stopwatch.elapsed.inSeconds;
   }
 
   void _submitAnswer() {
     if (selectedOption != null) {
       _stopTimer();
+      _calculatePerformance();
       _controller.flipcard();
-      _calculatePointsAndSave();
-      widget.onSubmitted();
+      setState(() {
+        isAnswerSubmitted = true;
+      });
     }
   }
 
-  void _calculatePointsAndSave() async {
+  void _calculatePerformance() async {
     try {
-      // Calculate points based on answer correctness and elapsed time
-      int points = _calculatePoints(
-          selectedOption == widget.correctOption, _elapsedSeconds);
-
       // Get the current user's ID
       final userId = FirebaseAuth.instance.currentUser!.uid;
 
-      // Fetch the user's first name and last name in a single query
+      // Fetch the user's first name and last name
       final userDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
@@ -99,93 +75,90 @@ class _QuizFlashcardState extends State<QuizFlashcard> {
         final userData = userDoc.data();
         final firstName = userData?['firstName'] ?? 'Unknown';
         final lastName = userData?['lastName'] ?? 'Unknown';
+        final quizFlashcard = widget.quizFlashcards[currentQuestionIndex];
 
-        // Update the user's points in the users collection incrementally
+        // Save the quiz result to the users collection
         await FirebaseFirestore.instance
             .collection('users')
             .doc(userId)
-            .update({
-          'points': FieldValue.increment(points),
-        });
-
-        // Save the contest result to the contestTime collection
-        await FirebaseFirestore.instance.collection('contestTime').add({
+            .collection('quizResults')
+            .add({
           'firstName': firstName,
           'lastName': lastName,
           'userId': userId,
-          'question': widget.question,
-          'timeTaken': _elapsedSeconds,
-          'points': points,
-          'correct': selectedOption == widget.correctOption,
+          'question': quizFlashcard.question,
+          'selectedOption': selectedOption,
+          'correctOption': quizFlashcard.correctOption,
+          'timeTaken': 600 - _remainingTime,
+          'isCorrect': selectedOption == quizFlashcard.correctOption,
           'timestamp': FieldValue.serverTimestamp(),
         });
-      } else {
-        print('User data does not exist.');
       }
     } catch (e) {
-      print('Error saving contest result: $e');
-    }
-  }
-
-  int _calculatePoints(bool isCorrect, int timeTaken) {
-    if (!isCorrect) {
-      return 1; // Minimum points if the answer is wrong
-    }
-
-    if (timeTaken < 10) {
-      return 10;
-    } else if (timeTaken < 20) {
-      return 9;
-    } else if (timeTaken < 30) {
-      return 8;
-    } else if (timeTaken < 45) {
-      return 7;
-    } else if (timeTaken < 60) {
-      return 6;
-    } else if (timeTaken < 90) {
-      return 5;
-    } else if (timeTaken < 120) {
-      return 4;
-    } else if (timeTaken < 180) {
-      return 3;
-    } else if (timeTaken < 240) {
-      return 2;
-    } else {
-      return 1; // Minimum points for taking too long
+      print('Error saving quiz result: $e');
     }
   }
 
   @override
   void dispose() {
     _timer.cancel();
-    _stopwatch.stop();
     super.dispose();
+  }
+
+  void _nextQuestion() {
+    setState(() {
+      if (currentQuestionIndex < widget.quizFlashcards.length - 1) {
+        currentQuestionIndex++;
+        selectedOption = null;
+        isAnswerSubmitted = false;
+        _remainingTime = 600; // Reset timer for next question
+        _controller.flipcard(); // Flip back to front for the new question
+        _startTimer(); // Restart timer for next question
+      } else {
+        // Optionally handle the end of the quiz
+        print('Quiz Completed!');
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text(
-            'Time Remaining: ${_formatTime(_remainingTime)}',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.red,
+    final currentFlashcard = widget.quizFlashcards[currentQuestionIndex];
+
+    return Scaffold(
+      appBar: AppBar(title: Text('Quiz Test')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                'Time Remaining: ${_formatTime(_remainingTime)}',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.red,
+                ),
+              ),
             ),
-          ),
+            Expanded(
+              child: FlipCard(
+                rotateSide: RotateSide.right,
+                controller: _controller,
+                frontWidget: _buildFrontCard(currentFlashcard),
+                backWidget: _buildBackCard(currentFlashcard),
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: isAnswerSubmitted ? _nextQuestion : null,
+              child: Text('Next Question'),
+            ),
+          ],
         ),
-        Expanded(
-          child: FlipCard(
-            rotateSide: RotateSide.right,
-            controller: _controller,
-            frontWidget: _buildFrontCard(),
-            backWidget: _buildBackCard(),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -195,7 +168,7 @@ class _QuizFlashcardState extends State<QuizFlashcard> {
     return '$minutes:$secs';
   }
 
-  Widget _buildFrontCard() {
+  Widget _buildFrontCard(QuizFlashcard flashcard) {
     return Container(
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -215,7 +188,7 @@ class _QuizFlashcardState extends State<QuizFlashcard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.question,
+            flashcard.question,
             style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
@@ -223,14 +196,13 @@ class _QuizFlashcardState extends State<QuizFlashcard> {
             ),
           ),
           SizedBox(height: 15),
-          _buildOptions(),
+          _buildOptions(flashcard),
           SizedBox(height: 15),
           ElevatedButton(
-            onPressed: selectedOption != null ? _submitAnswer : null,
-            child: Text(
-              'Submit',
-              style: TextStyle(color: Colors.white),
-            ),
+            onPressed: () {
+              _submitAnswer();
+            },
+            child: Text('Submit', style: TextStyle(color: Colors.white)),
             style: ElevatedButton.styleFrom(
               backgroundColor: selectedOption != null
                   ? const Color.fromARGB(255, 61, 139, 255)
@@ -240,17 +212,25 @@ class _QuizFlashcardState extends State<QuizFlashcard> {
               ),
             ),
           ),
+          if (isAnswerSubmitted)
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: Text(
+                'Answer Submitted!',
+                style: TextStyle(color: Colors.green),
+              ),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildOptions() {
+  Widget _buildOptions(QuizFlashcard flashcard) {
     final options = [
-      widget.option1,
-      widget.option2,
-      widget.option3,
-      widget.correctOption
+      flashcard.option1,
+      flashcard.option2,
+      flashcard.option3,
+      flashcard.correctOption,
     ];
     return Column(
       children: options.map((option) {
@@ -283,7 +263,7 @@ class _QuizFlashcardState extends State<QuizFlashcard> {
     );
   }
 
-  Widget _buildBackCard() {
+  Widget _buildBackCard(QuizFlashcard flashcard) {
     return Container(
       padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -311,7 +291,7 @@ class _QuizFlashcardState extends State<QuizFlashcard> {
               border: Border.all(color: Colors.orange, width: 2),
             ),
             child: Text(
-              'Correct Answer: ${widget.correctOption}',
+              'Correct Answer: ${flashcard.correctOption}',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -330,23 +310,17 @@ class _QuizFlashcardState extends State<QuizFlashcard> {
           ),
           SizedBox(height: 5),
           Text(
-            widget.explanation,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.black54,
-            ),
+            flashcard.explanation ?? 'No explanation provided.',
+            style: TextStyle(fontSize: 16),
           ),
-          SizedBox(height: 15),
+          SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              _controller.flipcard(); // Flip back to front
+              _controller.flipcard(); // Flip back to front for next question
             },
-            child: Text('Got It!', style: TextStyle(color: Colors.white)),
+            child: Text('Back to Question'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blueAccent,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
+              backgroundColor: Colors.orange,
             ),
           ),
         ],

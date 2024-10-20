@@ -556,7 +556,8 @@ class _StudentHomePageState extends State<StudentHomePage> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10),
-                  _buildFlashcardRecommendations(),
+                  _buildFlashcardRecommendations(
+                      FirebaseAuth.instance.currentUser!.uid),
 
                   SizedBox(height: 20),
 
@@ -634,29 +635,59 @@ class _StudentHomePageState extends State<StudentHomePage> {
 //   }
 // }
   // Flashcard Recommendations Card
-  Widget _buildFlashcardRecommendations() {
+  Widget _buildFlashcardRecommendations(String userId) {
     return Container(
       height: 150,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          _buildFlashcardItem('Math Flashcards', '20 cards', 'Math'),
-          _buildFlashcardItem('Science Flashcards', '15 cards', 'Science'),
-          _buildFlashcardItem('History Flashcards', '10 cards', 'History'),
-        ],
+      child: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .collection('flashcards')
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return Center(child: Text('No flashcards found.'));
+          }
+
+          // Fetch the flashcards from Firestore
+          final flashcards = snapshot.data!.docs;
+          return ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: flashcards.length,
+            itemBuilder: (context, index) {
+              final flashcard = flashcards[index];
+              return _buildFlashcardItem(
+                title: '${flashcard['topic']} Flashcards', // Flashcard Title
+                subtitle:
+                    '${flashcard['frontText']}', // Change to whatever you want
+                subject: flashcard['subject'], // Subject from flashcard
+              );
+            },
+          );
+        },
       ),
     );
   }
 
-  Widget _buildFlashcardItem(String title, String subtitle, String subject) {
+  Widget _buildFlashcardItem({
+    required String title,
+    required String subtitle,
+    required String subject,
+  }) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => PlayfulFlashcardPage(
-                      subject: subject,
-                    )));
+          context,
+          MaterialPageRoute(
+            builder: (context) => PlayfulFlashcardPage(
+              subject: subject,
+            ),
+          ),
+        );
       },
       child: Container(
         width: 180,
