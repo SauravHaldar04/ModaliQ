@@ -208,7 +208,10 @@ class _QuizFlashcardState extends State<QuizFlashcard> {
           _buildOptions(),
           SizedBox(height: 15),
           ElevatedButton(
-            onPressed: selectedOption != null ? _submitAnswer : null,
+            onPressed: () {
+              widget.onSubmitted();
+              selectedOption != null ? _submitAnswer : null;
+            },
             child: Text(
               'Submit',
               style: TextStyle(color: Colors.white),
